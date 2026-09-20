@@ -6,7 +6,7 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 [![n8n 2.38](https://img.shields.io/badge/n8n-2.38-ea4b71.svg)](#compatibility)
 
-![pnpm demo: eleven findings on a flawed workflow, then --fix takes it to seven](docs/demo/quickstart.gif)
+![pnpm demo: eleven findings on a flawed workflow, then --fix takes it to seven](https://raw.githubusercontent.com/LudwigGerdes/workflow-lint/main/docs/demo/quickstart.gif)
 
 <details><summary>Text transcript</summary>
 
@@ -57,14 +57,14 @@ An n8n workflow is a JSON file that is only ever checked by running it. A defaul
 
 ## Quickstart
 
-Requires Node >= 24 (see [Compatibility](#compatibility) for why). From 0.1.0 the whole tool is ONE npm package, `workflow-lint` — the CLI, the MCP server (`workflow-lint-mcp`), the rule-author API and the n8n 2.38.3 node descriptions, so it works offline straight after install:
+Requires Node >= 24 (see [Compatibility](#compatibility) for why). The whole tool is one npm package, `workflow-lint` — the CLI, the MCP server (`workflow-lint-mcp`), the rule-author API and the n8n 2.38.3 node descriptions, so it works offline straight after install:
 
 ```bash
 npx workflow-lint lint path/to/workflow.json --n8n-version 2.38.3
 npm install --save-dev workflow-lint     # or pin it in a project
 ```
 
-Until 0.1.0 is published (the name on npm is a placeholder today), or to work on the tool, build from a checkout (pnpm 10):
+To work on the tool itself, build from a checkout (pnpm 10):
 
 ```bash
 git clone https://github.com/LudwigGerdes/workflow-lint && cd workflow-lint
@@ -224,7 +224,7 @@ x 1 problem (1 error, 0 warnings)
 
 `--fix` applies **safe** fixes: renaming a decision node to end in `?` (propagated through connections and expressions), setting a pass-through Set's `includeOtherFields`, adding a retry block to an HTTP node. `--fix-unsafe` additionally applies fixes that may change behaviour — today only the `typeVersion` bump in `n8n/typeversion-policy`, which is withheld unless the node validates both before and after. Fixes re-run until the document stops changing, and every safe fix is checked for idempotency in the test suite.
 
-![A user's flawed workflow: typeVersion drift against a pinned 2.38.3, then the --fix-unsafe diff](docs/images/workflow-lint-shot-2.png)
+![A user's flawed workflow: typeVersion drift against a pinned 2.38.3, then the --fix-unsafe diff](https://raw.githubusercontent.com/LudwigGerdes/workflow-lint/main/docs/images/workflow-lint-shot-2.png)
 
 <details><summary>Text transcript</summary>
 
@@ -395,7 +395,7 @@ Installed n8n 2.36.8 node types to ~/.workflow-lint/node-types/2.36.8
 
 ### GitHub Action
 
-`action.yml` is a composite action. It builds from its own checkout (`pnpm install --frozen-lockfile && pnpm build`) before linting — expect the first step to take a minute; once 0.1.0 is on npm it will switch to `npx workflow-lint@<version>` and skip the build. It defaults to `--format github-actions`, so findings arrive as annotations on the changed lines.
+`action.yml` is a composite action. It builds from its own checkout (`pnpm install --frozen-lockfile && pnpm build`) before linting — expect the first step to take a minute; a later release will switch it to `npx workflow-lint@<version>` and skip the build. It defaults to `--format github-actions`, so findings arrive as annotations on the changed lines.
 
 ```yaml
 - uses: LudwigGerdes/workflow-lint@main
@@ -421,7 +421,7 @@ For code scanning instead, use the checkout invocation and upload SARIF:
 
 `lefthook.yml` in this repo is the recipe. Install with `npx lefthook install`; it runs `lint --fail-on error` and `fmt --check` in parallel over staged workflow JSON.
 
-![The pre-commit hook blocking a commit: fmt wants three nodes moved, lint lists eleven findings, both in 0.56 s](docs/images/workflow-lint-shot-3.png)
+![The pre-commit hook blocking a commit: fmt wants three nodes moved, lint lists eleven findings, both in 0.56 s](https://raw.githubusercontent.com/LudwigGerdes/workflow-lint/main/docs/images/workflow-lint-shot-3.png)
 
 <details><summary>Text transcript</summary>
 

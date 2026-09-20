@@ -118,8 +118,8 @@ node packages/cli/dist/bin.js node-types list
 The MCP server is `node packages/cli/dist/mcp.js` (`action.yml` and
 any pre-commit hook that runs the linter from a checkout depend on
 `packages/cli/dist/bin.js` existing — keep that path).
-The package is not published to npm yet, so `npx workflow-lint` does not work
-until 0.1.0 is released; the tarball is proven installable by `pnpm smoke`.
+The package is published to npm as `workflow-lint`; `pnpm smoke` proves every
+build is installable from its tarball before it is released.
 
 ## CI
 
