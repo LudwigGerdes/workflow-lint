@@ -1,0 +1,8 @@
+{
+  "n8nVersion": "1.0.0",
+  "bundledAt": "2026-09-13T00:00:00.000Z",
+  "sources": {
+    "base": "n8n-nodes-base@1.0.0",
+    "langchain": "@n8n/n8n-nodes-langchain@1.0.0"
+  }
+}

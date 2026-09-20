@@ -1,0 +1,41 @@
+{
+  "name": "Loop Demo",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "aaaaaaaa-1111-4111-8111-111111111111",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [0, 192]
+    },
+    {
+      "parameters": { "options": {} },
+      "id": "bbbbbbbb-2222-4222-8222-222222222222",
+      "name": "Loop Over Items",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [192, 192]
+    },
+    {
+      "parameters": { "options": {} },
+      "id": "cccccccc-3333-4333-8333-333333333333",
+      "name": "Loop Body",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [384, 288]
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [[{ "node": "Loop Over Items", "type": "main", "index": 0 }]]
+    },
+    "Loop Over Items": {
+      "main": [[], [{ "node": "Loop Body", "type": "main", "index": 0 }]]
+    },
+    "Loop Body": {
+      "main": [[{ "node": "Loop Over Items", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": { "executionOrder": "v1" }
+}

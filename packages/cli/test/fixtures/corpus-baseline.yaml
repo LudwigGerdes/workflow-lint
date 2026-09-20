@@ -1,0 +1,336 @@
+version: 1
+entries:
+  n8n-workflow-expert/references/examples/01-data-merging/01-append-mode-2-branches.json::DebugHelper::naming/no-default-node-name: 1
+  n8n-workflow-expert/references/examples/01-data-merging/01-append-mode-2-branches.json::DebugHelper1::naming/no-default-node-name: 1
+  n8n-workflow-expert/references/examples/01-data-merging/01-append-mode-2-branches.json::Merge::naming/no-default-node-name: 1
+  n8n-workflow-expert/references/examples/01-data-merging/06-append-mode-9-branches.json::DebugHelper::naming/no-default-node-name: 1
+  n8n-workflow-expert/references/examples/01-data-merging/06-append-mode-9-branches.json::DebugHelper1::naming/no-default-node-name: 1
+  n8n-workflow-expert/references/examples/01-data-merging/06-append-mode-9-branches.json::Merge::naming/no-default-node-name: 1
+  n8n-workflow-expert/references/examples/01-data-merging/06-append-mode-9-branches.json::DebugHelper2::naming/no-default-node-name: 1
+  n8n-workflow-expert/references/examples/01-data-merging/06-append-mode-9-branches.json::DebugHelper3::naming/no-default-node-name: 1
+  n8n-workflow-expert/references/examples/01-data-merging/06-append-mode-9-branches.json::DebugHelper4::naming/no-default-node-name: 1
+  n8n-workflow-expert/references/examples/01-data-merging/06-append-mode-9-branches.json::DebugHelper5::naming/no-default-node-name: 1
+  n8n-workflow-expert/references/examples/01-data-merging/06-append-mode-9-branches.json::DebugHelper6::naming/no-default-node-name: 1
+  n8n-workflow-expert/references/examples/01-data-merging/06-append-mode-9-branches.json::DebugHelper7::naming/no-default-node-name: 1
+  n8n-workflow-expert/references/examples/01-data-merging/06-append-mode-9-branches.json::DebugHelper8::naming/no-default-node-name: 1
+  n8n-workflow-expert/references/examples/01-data-merging/20-full-outer-join.json::Split Out::naming/no-default-node-name: 1
+  n8n-workflow-expert/references/examples/01-data-merging/21-choose-branch-sync.json::Wait 15s::naming/external-node-name-format: 1
+  n8n-workflow-expert/references/examples/01-data-merging/21-choose-branch-sync.json::Wait 15s::reliability/http-retry-config: 1
+  n8n-workflow-expert/references/examples/01-data-merging/28-sql-join.json::Split Out::naming/no-default-node-name: 1
+  n8n-workflow-expert/references/examples/01-data-merging/32-set-spread-manual-index.json::Aggregate::naming/no-default-node-name: 1
+  n8n-workflow-expert/references/examples/01-data-merging/48-set-itemindex-mapping.json::Split Out::naming/no-default-node-name: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/02-supervisor-octopus.json::Anthropic Chat Model::naming/no-default-node-name: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/02-supervisor-octopus.json::mx_record_lookup::n8n/valid: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/02-supervisor-octopus.json::domain_whois::n8n/valid: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/02-supervisor-octopus.json::Email Threat Investigation Planner::n8n/valid: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/04-log-complex.json::GET Order - Fetch Details::hygiene/no-placeholder-api-url: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/04-log-complex.json::GET Order - Fetch Details::reliability/http-retry-config: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/04-log-complex.json::POST Order - Confirm::hygiene/no-placeholder-api-url: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/04-log-complex.json::POST Order - Confirm::reliability/http-retry-config: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/11-log-simple.json::GET User - Fetch Account::hygiene/no-placeholder-api-url: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/11-log-simple.json::GET User - Fetch Account::reliability/http-retry-config: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/11-log-simple.json::POST Notification - Welcome Email::hygiene/no-placeholder-api-url: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/11-log-simple.json::POST Notification - Welcome Email::reliability/http-retry-config: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/13-claw-pattern.json::GET Report - Fetch Data::hygiene/no-placeholder-api-url: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/13-claw-pattern.json::GET Report - Fetch Data::reliability/http-retry-config: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/13-claw-pattern.json::POST Slack - Notify Team::hygiene/no-placeholder-api-url: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/13-claw-pattern.json::POST Slack - Notify Team::reliability/http-retry-config: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/13-claw-pattern.json::POST Email - Send Report::hygiene/no-placeholder-api-url: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/13-claw-pattern.json::POST Email - Send Report::reliability/http-retry-config: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/13-claw-pattern.json::PATCH Database - Update Status::hygiene/no-placeholder-api-url: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/13-claw-pattern.json::PATCH Database - Update Status::reliability/http-retry-config: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/38-simple-octopus.json::IP Investigator::n8n/typeversion-policy: 2
+  n8n-workflow-expert/references/examples/02-architectural-patterns/38-simple-octopus.json::IP Investigator::n8n/valid: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/38-simple-octopus.json::IP Investigator::naming/external-node-name-format: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/38-simple-octopus.json::IP Investigator::reliability/http-retry-config: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/38-simple-octopus.json::OpenAI Chat Model::n8n/typeversion-policy: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/38-simple-octopus.json::OpenAI Chat Model::naming/no-default-node-name: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/38-simple-octopus.json::IP Geolocation::n8n/valid: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/38-simple-octopus.json::IP WHOIS::n8n/valid: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/38-simple-octopus.json::Country Details::n8n/valid: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/58-hierarchical-octopus.json::Director::n8n/valid: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/58-hierarchical-octopus.json::mx_record_lookup::n8n/valid: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/58-hierarchical-octopus.json::domain_whois::n8n/valid: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/58-hierarchical-octopus.json::Anthropic Chat Model::naming/no-default-node-name: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/58-hierarchical-octopus.json::Match Breach::data/code-node-multi-field: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/58-hierarchical-octopus.json::Match Breach::structure/no-dangling-node: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/58-hierarchical-octopus.json::Get Password Breaches and Counts::naming/external-node-name-format: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/58-hierarchical-octopus.json::Get Password Breaches and Counts::reliability/http-retry-config: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/59-parallel-octopus.json::*::structure/loop-iteration-guard: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/59-parallel-octopus.json::Define Analysis Topic::data/set-raw-mode-for-nested: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/59-parallel-octopus.json::Define Analysis Topic::structure/merge-for-reconvergence: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/59-parallel-octopus.json::OpenAI Model (Analyst)::n8n/typeversion-policy: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/59-parallel-octopus.json::Aggregate::naming/no-default-node-name: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/59-parallel-octopus.json::Anthropic Chat Model::naming/no-default-node-name: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/59-parallel-octopus.json::Anthropic Agent::n8n/typeversion-policy: 2
+  n8n-workflow-expert/references/examples/02-architectural-patterns/59-parallel-octopus.json::Anthropic Agent::n8n/valid: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/59-parallel-octopus.json::Anthropic Agent::naming/external-node-name-format: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/59-parallel-octopus.json::Anthropic Agent::reliability/http-retry-config: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/59-parallel-octopus.json::OpenAI Agent::n8n/typeversion-policy: 2
+  n8n-workflow-expert/references/examples/02-architectural-patterns/59-parallel-octopus.json::OpenAI Agent::n8n/valid: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/59-parallel-octopus.json::OpenAI Agent::naming/external-node-name-format: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/59-parallel-octopus.json::OpenAI Agent::reliability/http-retry-config: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/59-parallel-octopus.json::Structured Output Parser::naming/no-default-node-name: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/59-parallel-octopus.json::Structured Output Parser1::naming/no-default-node-name: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/59-parallel-octopus.json::Open Elevation Tool::n8n/valid: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/59-parallel-octopus.json::Open-Meteo Elevation API Tool::n8n/valid: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/59-parallel-octopus.json::Open Elevation Tool1::n8n/valid: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/59-parallel-octopus.json::Open-Meteo Elevation API Tool1::n8n/valid: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/59-parallel-octopus.json::Nest output under openAI key::data/set-raw-mode-for-nested: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/59-parallel-octopus.json::Nest under Anthropic key::data/set-raw-mode-for-nested: 1
+  "n8n-workflow-expert/references/examples/02-architectural-patterns/59-parallel-octopus.json:: Unnest results::structure/branch-entry-pass-through": 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/59-parallel-octopus.json::GET info from BigDataCloud::naming/external-node-name-format: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/59-parallel-octopus.json::GET info from BigDataCloud::reliability/http-retry-config: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/60-generator-critic.json::*::structure/loop-iteration-guard: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/60-generator-critic.json::Report Generator::n8n/typeversion-policy: 2
+  n8n-workflow-expert/references/examples/02-architectural-patterns/60-generator-critic.json::Report Generator::n8n/valid: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/60-generator-critic.json::Report Generator::naming/external-node-name-format: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/60-generator-critic.json::Report Generator::reliability/http-retry-config: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/60-generator-critic.json::Report Generator::structure/merge-for-reconvergence: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/60-generator-critic.json::Anthropic Chat Model::naming/no-default-node-name: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/60-generator-critic.json::ip_geolocation::n8n/valid: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/60-generator-critic.json::ip_whois::n8n/valid: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/60-generator-critic.json::Critic::n8n/typeversion-policy: 2
+  n8n-workflow-expert/references/examples/02-architectural-patterns/60-generator-critic.json::Critic::n8n/valid: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/60-generator-critic.json::Critic::naming/external-node-name-format: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/60-generator-critic.json::Critic::reliability/http-retry-config: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/60-generator-critic.json::OpenAI Chat Model::n8n/typeversion-policy: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/60-generator-critic.json::OpenAI Chat Model::naming/no-default-node-name: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/60-generator-critic.json::Quality Gate::naming/decision-node-question-mark: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/60-generator-critic.json::Final Report::structure/branch-entry-pass-through: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/60-generator-critic.json::Revision Feedback::structure/branch-entry-pass-through: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/61-handoff-relay.json::*::structure/loop-iteration-guard: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/61-handoff-relay.json::Switch Route to Specialist::naming/no-type-prefix-in-name: 4
+  n8n-workflow-expert/references/examples/02-architectural-patterns/61-handoff-relay.json::Switch Route to Specialist::structure/merge-for-reconvergence: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/61-handoff-relay.json::Triage Agent::n8n/typeversion-policy: 2
+  n8n-workflow-expert/references/examples/02-architectural-patterns/61-handoff-relay.json::Triage Agent::n8n/valid: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/61-handoff-relay.json::Triage Agent::naming/external-node-name-format: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/61-handoff-relay.json::Triage Agent::reliability/http-retry-config: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/61-handoff-relay.json::Triage Agent::structure/branch-entry-pass-through: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/61-handoff-relay.json::Seismology Agent::n8n/typeversion-policy: 2
+  n8n-workflow-expert/references/examples/02-architectural-patterns/61-handoff-relay.json::Seismology Agent::n8n/valid: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/61-handoff-relay.json::Seismology Agent::naming/external-node-name-format: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/61-handoff-relay.json::Seismology Agent::reliability/http-retry-config: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/61-handoff-relay.json::Seismology Agent::structure/branch-entry-pass-through: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/61-handoff-relay.json::Meteorology Agent::n8n/typeversion-policy: 2
+  n8n-workflow-expert/references/examples/02-architectural-patterns/61-handoff-relay.json::Meteorology Agent::n8n/valid: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/61-handoff-relay.json::Meteorology Agent::naming/external-node-name-format: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/61-handoff-relay.json::Meteorology Agent::reliability/http-retry-config: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/61-handoff-relay.json::Meteorology Agent::structure/branch-entry-pass-through: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/61-handoff-relay.json::Geology Agent::n8n/typeversion-policy: 2
+  n8n-workflow-expert/references/examples/02-architectural-patterns/61-handoff-relay.json::Geology Agent::n8n/valid: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/61-handoff-relay.json::Geology Agent::naming/external-node-name-format: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/61-handoff-relay.json::Geology Agent::reliability/http-retry-config: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/61-handoff-relay.json::Geology Agent::structure/branch-entry-pass-through: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/61-handoff-relay.json::earthquake_data::n8n/valid: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/61-handoff-relay.json::weather_data::n8n/valid: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/61-handoff-relay.json::elevation_data::n8n/valid: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/61-handoff-relay.json::OpenAI Model::n8n/typeversion-policy: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/61-handoff-relay.json::Final Response::structure/branch-entry-pass-through: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/61-handoff-relay.json::Update State::structure/branch-entry-pass-through: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/61-handoff-relay.json::Merge::naming/no-default-node-name: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/61-handoff-relay.json::Parse Handoff::data/set-raw-mode-for-nested: 2
+  n8n-workflow-expert/references/examples/02-architectural-patterns/61-handoff-relay.json::GET Events - NASA EONET::reliability/http-retry-config: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/61-handoff-relay.json::Initialize State::data/batch-response-not-split: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/62-sequential-pipeline.json::Research Agent::n8n/typeversion-policy: 2
+  n8n-workflow-expert/references/examples/02-architectural-patterns/62-sequential-pipeline.json::Research Agent::n8n/valid: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/62-sequential-pipeline.json::Research Agent::naming/external-node-name-format: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/62-sequential-pipeline.json::Research Agent::reliability/http-retry-config: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/62-sequential-pipeline.json::country_facts::n8n/valid: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/62-sequential-pipeline.json::country_summary::n8n/valid: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/62-sequential-pipeline.json::Analysis Agent::n8n/typeversion-policy: 2
+  n8n-workflow-expert/references/examples/02-architectural-patterns/62-sequential-pipeline.json::Analysis Agent::n8n/valid: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/62-sequential-pipeline.json::Analysis Agent::naming/external-node-name-format: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/62-sequential-pipeline.json::Analysis Agent::reliability/http-retry-config: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/62-sequential-pipeline.json::OpenAI Model::n8n/typeversion-policy: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/62-sequential-pipeline.json::Report Writer::n8n/typeversion-policy: 2
+  n8n-workflow-expert/references/examples/02-architectural-patterns/62-sequential-pipeline.json::Report Writer::n8n/valid: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/62-sequential-pipeline.json::Report Writer::naming/external-node-name-format: 1
+  n8n-workflow-expert/references/examples/02-architectural-patterns/62-sequential-pipeline.json::Report Writer::reliability/http-retry-config: 1
+  n8n-workflow-expert/references/examples/03-batch-operations/03-batch-pagination.json::GET Products - Fetch Page::reliability/http-retry-config: 1
+  n8n-workflow-expert/references/examples/03-batch-operations/03-batch-pagination.json::Pagination Summary::data/set-raw-mode-for-nested: 2
+  n8n-workflow-expert/references/examples/03-batch-operations/09-simple-batch-retrieval.json::GET Products - Fetch Catalog::reliability/http-retry-config: 1
+  n8n-workflow-expert/references/examples/03-batch-operations/15-edit-fields-json-array.json::GET Countries - Fetch Batch::reliability/http-retry-config: 1
+  n8n-workflow-expert/references/examples/03-batch-operations/15-edit-fields-json-array.json::Split Out Countries::data/code-node-multi-field: 1
+  n8n-workflow-expert/references/examples/03-batch-operations/23-batch-create-update.json::GET Products - Fetch Sample::reliability/http-retry-config: 1
+  n8n-workflow-expert/references/examples/03-batch-operations/23-batch-create-update.json::POST Updates - Submit Batch::hygiene/no-placeholder-api-url: 1
+  n8n-workflow-expert/references/examples/03-batch-operations/23-batch-create-update.json::POST Updates - Submit Batch::reliability/http-retry-config: 1
+  n8n-workflow-expert/references/examples/03-batch-operations/23-batch-create-update.json::Batch Receipt::structure/set-pass-through-include-other-fields: 1
+  n8n-workflow-expert/references/examples/03-batch-operations/24-individual-vs-batch.json::GET Rate - Fetch One::reliability/http-retry-config: 1
+  n8n-workflow-expert/references/examples/03-batch-operations/24-individual-vs-batch.json::GET Rates - Fetch Batch::reliability/http-retry-config: 1
+  n8n-workflow-expert/references/examples/03-batch-operations/24-individual-vs-batch.json::Extract Batch Rates::data/code-node-multi-field: 1
+  n8n-workflow-expert/references/examples/03-batch-operations/44-code-batch-formatting.json::Build Batch Payload::data/code-node-multi-field: 1
+  n8n-workflow-expert/references/examples/03-batch-operations/63-batch-response-handling.json::Simulate Batch Response::data/code-node-multi-field: 1
+  n8n-workflow-expert/references/examples/03-batch-operations/63-batch-response-handling.json::Process Successes::structure/branch-entry-pass-through: 1
+  n8n-workflow-expert/references/examples/03-batch-operations/63-batch-response-handling.json::Log Failures::structure/branch-entry-pass-through: 1
+  n8n-workflow-expert/references/examples/04-error-handling/25-error-trigger-rollback.json::Pass Through Error Data::structure/merge-for-reconvergence: 1
+  n8n-workflow-expert/references/examples/04-error-handling/25-error-trigger-rollback.json::DELETE Orders - Rollback Pending::hygiene/no-placeholder-api-url: 1
+  n8n-workflow-expert/references/examples/04-error-handling/25-error-trigger-rollback.json::DELETE Orders - Rollback Pending::reliability/http-retry-config: 1
+  n8n-workflow-expert/references/examples/04-error-handling/25-error-trigger-rollback.json::PUT Inventory - Revert Stock::hygiene/no-placeholder-api-url: 1
+  n8n-workflow-expert/references/examples/04-error-handling/25-error-trigger-rollback.json::PUT Inventory - Revert Stock::reliability/http-retry-config: 1
+  n8n-workflow-expert/references/examples/04-error-handling/25-error-trigger-rollback.json::POST Webhook - Send Alert::hygiene/no-placeholder-api-url: 1
+  n8n-workflow-expert/references/examples/04-error-handling/25-error-trigger-rollback.json::POST Webhook - Send Alert::reliability/http-retry-config: 1
+  n8n-workflow-expert/references/examples/04-error-handling/36-validation-early-exit.json::Continue Processing::structure/branch-entry-pass-through: 1
+  "n8n-workflow-expert/references/examples/04-error-handling/36-validation-early-exit.json::Stop: Missing Required Fields::structure/branch-entry-pass-through": 1
+  n8n-workflow-expert/references/examples/04-error-handling/46-progressive-escalation.json::Determine Severity::hygiene/no-environment-literals: 1
+  n8n-workflow-expert/references/examples/04-error-handling/46-progressive-escalation.json::Page On-Call::structure/branch-entry-pass-through: 1
+  n8n-workflow-expert/references/examples/04-error-handling/46-progressive-escalation.json::Send Slack Alert::structure/branch-entry-pass-through: 1
+  n8n-workflow-expert/references/examples/04-error-handling/46-progressive-escalation.json::Log Only::structure/branch-entry-pass-through: 1
+  n8n-workflow-expert/references/examples/04-error-handling/64-actionable-error-messages.json::Generate Test Record::structure/merge-for-reconvergence: 1
+  n8n-workflow-expert/references/examples/04-error-handling/64-actionable-error-messages.json::Process Record::structure/branch-entry-pass-through: 1
+  n8n-workflow-expert/references/examples/04-error-handling/64-actionable-error-messages.json::Process Record::structure/no-dangling-node: 1
+  n8n-workflow-expert/references/examples/04-error-handling/64-actionable-error-messages.json::Format Error Message::structure/branch-entry-pass-through: 1
+  n8n-workflow-expert/references/examples/05-composition/07-sticky-note-guide.json::POST API - Send Result::hygiene/no-placeholder-api-url: 1
+  n8n-workflow-expert/references/examples/05-composition/08-symmetric-branching.json::Merge::naming/no-default-node-name: 1
+  n8n-workflow-expert/references/examples/05-composition/16-well-composed-webhook.json::Webhook Trigger::n8n/valid: 1
+  n8n-workflow-expert/references/examples/05-composition/16-well-composed-webhook.json::Webhook Trigger::reliability/webhook-input-contract: 1
+  n8n-workflow-expert/references/examples/05-composition/16-well-composed-webhook.json::Webhook Trigger::reliability/webhook-responds-early: 1
+  n8n-workflow-expert/references/examples/05-composition/16-well-composed-webhook.json::Pass Through Request Data::structure/merge-for-reconvergence: 1
+  n8n-workflow-expert/references/examples/05-composition/16-well-composed-webhook.json::GET User - Fetch from Database::hygiene/no-placeholder-api-url: 1
+  n8n-workflow-expert/references/examples/05-composition/16-well-composed-webhook.json::GET User - Fetch from Database::reliability/http-retry-config: 1
+  n8n-workflow-expert/references/examples/05-composition/16-well-composed-webhook.json::POST Order - Create in System::hygiene/no-placeholder-api-url: 1
+  n8n-workflow-expert/references/examples/05-composition/16-well-composed-webhook.json::POST Order - Create in System::reliability/http-retry-config: 1
+  n8n-workflow-expert/references/examples/05-composition/16-well-composed-webhook.json::Respond 200 Success::naming/external-node-name-format: 1
+  n8n-workflow-expert/references/examples/05-composition/16-well-composed-webhook.json::Respond 200 Success::reliability/http-retry-config: 1
+  n8n-workflow-expert/references/examples/05-composition/16-well-composed-webhook.json::Respond 400 Bad Request::naming/external-node-name-format: 1
+  n8n-workflow-expert/references/examples/05-composition/16-well-composed-webhook.json::Respond 400 Bad Request::reliability/http-retry-config: 1
+  n8n-workflow-expert/references/examples/05-composition/16-well-composed-webhook.json::Mock Webhook Payload::hygiene/no-environment-literals: 1
+  n8n-workflow-expert/references/examples/05-composition/18-horizontal-alignment.json::GET Premium Details::hygiene/no-placeholder-api-url: 1
+  n8n-workflow-expert/references/examples/05-composition/18-horizontal-alignment.json::GET Premium Details::naming/external-node-name-format: 1
+  n8n-workflow-expert/references/examples/05-composition/18-horizontal-alignment.json::GET Premium Details::reliability/http-retry-config: 1
+  n8n-workflow-expert/references/examples/05-composition/18-horizontal-alignment.json::GET Standard Details::hygiene/no-placeholder-api-url: 1
+  n8n-workflow-expert/references/examples/05-composition/18-horizontal-alignment.json::GET Standard Details::naming/external-node-name-format: 1
+  n8n-workflow-expert/references/examples/05-composition/18-horizontal-alignment.json::GET Standard Details::reliability/http-retry-config: 1
+  n8n-workflow-expert/references/examples/05-composition/18-horizontal-alignment.json::Merge::naming/no-default-node-name: 1
+  n8n-workflow-expert/references/examples/05-composition/26-question-mark-decisions.json::Has Active Subscription?::structure/branch-entry-pass-through: 1
+  n8n-workflow-expert/references/examples/05-composition/26-question-mark-decisions.json::Send Verification Email::structure/no-dangling-node: 1
+  n8n-workflow-expert/references/examples/05-composition/27-loop-pass-through-complete.json::GET Users - Fetch from API::hygiene/no-placeholder-api-url: 1
+  n8n-workflow-expert/references/examples/05-composition/27-loop-pass-through-complete.json::Loop Over Items::naming/no-default-node-name: 1
+  n8n-workflow-expert/references/examples/05-composition/27-loop-pass-through-complete.json::Loop Over Items::structure/merge-for-reconvergence: 1
+  n8n-workflow-expert/references/examples/05-composition/27-loop-pass-through-complete.json::GET User Details - Fetch from Database::hygiene/no-placeholder-api-url: 1
+  n8n-workflow-expert/references/examples/05-composition/27-loop-pass-through-complete.json::POST Email - Send Weekly Report::hygiene/no-placeholder-api-url: 1
+  n8n-workflow-expert/references/examples/05-composition/27-loop-pass-through-complete.json::Merge::naming/no-default-node-name: 1
+  n8n-workflow-expert/references/examples/05-composition/29-good-spacing.json::Aggregate::naming/no-default-node-name: 1
+  n8n-workflow-expert/references/examples/05-composition/29-good-spacing.json::Aggregate for Node Note 3::structure/no-dangling-node: 1
+  n8n-workflow-expert/references/examples/05-composition/29-good-spacing.json::Aggregate with a very verbose name that may require additional space::structure/no-dangling-node: 1
+  n8n-workflow-expert/references/examples/05-composition/29-good-spacing.json::Rename version key to version_list::data/set-raw-mode-for-nested: 1
+  n8n-workflow-expert/references/examples/05-composition/29-good-spacing.json::Split Out::naming/no-default-node-name: 1
+  n8n-workflow-expert/references/examples/05-composition/31-pass-through-loops.json::Loop Over Items::data/loop-with-single-http-call: 1
+  n8n-workflow-expert/references/examples/05-composition/31-pass-through-loops.json::Loop Over Items::naming/no-default-node-name: 1
+  n8n-workflow-expert/references/examples/05-composition/31-pass-through-loops.json::Loop Over Items::structure/merge-for-reconvergence: 1
+  n8n-workflow-expert/references/examples/05-composition/31-pass-through-loops.json::GET User Details::hygiene/no-placeholder-api-url: 1
+  n8n-workflow-expert/references/examples/05-composition/31-pass-through-loops.json::GET User Details::naming/external-node-name-format: 1
+  n8n-workflow-expert/references/examples/05-composition/31-pass-through-loops.json::GET User Details::reliability/http-retry-config: 1
+  n8n-workflow-expert/references/examples/05-composition/33-pass-through-branches.json::POST Users - Create Account::hygiene/no-placeholder-api-url: 1
+  n8n-workflow-expert/references/examples/05-composition/33-pass-through-branches.json::POST Users - Create Account::reliability/http-retry-config: 1
+  n8n-workflow-expert/references/examples/05-composition/35-poor-alignment.json::GET Premium Details::hygiene/no-placeholder-api-url: 1
+  n8n-workflow-expert/references/examples/05-composition/35-poor-alignment.json::GET Premium Details::naming/external-node-name-format: 1
+  n8n-workflow-expert/references/examples/05-composition/35-poor-alignment.json::GET Premium Details::reliability/http-retry-config: 1
+  n8n-workflow-expert/references/examples/05-composition/35-poor-alignment.json::GET Standard Details::hygiene/no-placeholder-api-url: 1
+  n8n-workflow-expert/references/examples/05-composition/35-poor-alignment.json::GET Standard Details::naming/external-node-name-format: 1
+  n8n-workflow-expert/references/examples/05-composition/35-poor-alignment.json::GET Standard Details::reliability/http-retry-config: 1
+  n8n-workflow-expert/references/examples/05-composition/35-poor-alignment.json::Merge::naming/no-default-node-name: 1
+  n8n-workflow-expert/references/examples/05-composition/37-loop-lower-branch.json::Loop Over Items::naming/no-default-node-name: 1
+  n8n-workflow-expert/references/examples/05-composition/37-loop-lower-branch.json::Loop Over Items::structure/merge-for-reconvergence: 1
+  n8n-workflow-expert/references/examples/05-composition/37-loop-lower-branch.json::POST Slack - Notify Team::hygiene/no-placeholder-api-url: 1
+  n8n-workflow-expert/references/examples/05-composition/37-loop-lower-branch.json::POST Slack - Notify Team::reliability/http-retry-config: 1
+  n8n-workflow-expert/references/examples/05-composition/37-loop-lower-branch.json::Split Out::naming/no-default-node-name: 1
+  n8n-workflow-expert/references/examples/05-composition/39-alignment-pass-through.json::Merge::naming/no-default-node-name: 1
+  n8n-workflow-expert/references/examples/05-composition/40-poor-spacing-cramped.json::DebugHelper::naming/no-default-node-name: 1
+  n8n-workflow-expert/references/examples/05-composition/40-poor-spacing-cramped.json::Edit Fields::naming/no-default-node-name: 1
+  n8n-workflow-expert/references/examples/05-composition/40-poor-spacing-cramped.json::No Operation, do nothing::naming/no-default-node-name: 1
+  n8n-workflow-expert/references/examples/05-composition/40-poor-spacing-cramped.json::Aggregate::naming/no-default-node-name: 1
+  n8n-workflow-expert/references/examples/05-composition/40-poor-spacing-cramped.json::Summarize::naming/no-default-node-name: 1
+  n8n-workflow-expert/references/examples/05-composition/41-multi-branch-switch.json::Generate Users::data/code-node-multi-field: 1
+  n8n-workflow-expert/references/examples/05-composition/41-multi-branch-switch.json::Free Tier::data/set-raw-mode-for-nested: 1
+  n8n-workflow-expert/references/examples/05-composition/41-multi-branch-switch.json::Free Tier::structure/branch-entry-pass-through: 1
+  n8n-workflow-expert/references/examples/05-composition/41-multi-branch-switch.json::Pro Tier::data/set-raw-mode-for-nested: 1
+  n8n-workflow-expert/references/examples/05-composition/41-multi-branch-switch.json::Pro Tier::structure/branch-entry-pass-through: 1
+  n8n-workflow-expert/references/examples/05-composition/41-multi-branch-switch.json::Enterprise Tier::data/set-raw-mode-for-nested: 1
+  n8n-workflow-expert/references/examples/05-composition/41-multi-branch-switch.json::Enterprise Tier::structure/branch-entry-pass-through: 1
+  n8n-workflow-expert/references/examples/05-composition/41-multi-branch-switch.json::Merge::naming/no-default-node-name: 1
+  n8n-workflow-expert/references/examples/05-composition/42-loop-upper-branch.json::Loop Over Items::naming/no-default-node-name: 1
+  n8n-workflow-expert/references/examples/05-composition/42-loop-upper-branch.json::Loop Over Items::structure/merge-for-reconvergence: 1
+  n8n-workflow-expert/references/examples/05-composition/42-loop-upper-branch.json::Merge::n8n/valid: 1
+  n8n-workflow-expert/references/examples/05-composition/42-loop-upper-branch.json::Merge::naming/no-default-node-name: 1
+  n8n-workflow-expert/references/examples/05-composition/42-loop-upper-branch.json::POST Slack - Notify Team::hygiene/no-placeholder-api-url: 1
+  n8n-workflow-expert/references/examples/05-composition/42-loop-upper-branch.json::POST Slack - Notify Team::reliability/http-retry-config: 1
+  n8n-workflow-expert/references/examples/05-composition/47-sticky-module-section.json::POST API - Create User::hygiene/no-placeholder-api-url: 1
+  n8n-workflow-expert/references/examples/05-composition/47-sticky-module-section.json::POST API - Create User::reliability/http-retry-config: 1
+  n8n-workflow-expert/references/examples/05-composition/49-asymmetric-branching.json::Merge::naming/no-default-node-name: 1
+  n8n-workflow-expert/references/examples/05-composition/51-ai-agent-lower-branch.json::GET Coordinates - Nominatim::reliability/http-retry-config: 1
+  n8n-workflow-expert/references/examples/05-composition/51-ai-agent-lower-branch.json::Address Fixer::n8n/typeversion-policy: 2
+  n8n-workflow-expert/references/examples/05-composition/51-ai-agent-lower-branch.json::Address Fixer::n8n/valid: 1
+  n8n-workflow-expert/references/examples/05-composition/51-ai-agent-lower-branch.json::Address Fixer::naming/external-node-name-format: 1
+  n8n-workflow-expert/references/examples/05-composition/51-ai-agent-lower-branch.json::Address Fixer::reliability/http-retry-config: 1
+  n8n-workflow-expert/references/examples/05-composition/51-ai-agent-lower-branch.json::Anthropic Chat Model::naming/no-default-node-name: 1
+  n8n-workflow-expert/references/examples/05-composition/51-ai-agent-lower-branch.json::geocode_city::n8n/valid: 1
+  n8n-workflow-expert/references/examples/05-composition/51-ai-agent-lower-branch.json::validate_country::n8n/valid: 1
+  n8n-workflow-expert/references/examples/05-composition/51-ai-agent-lower-branch.json::Merge::naming/no-default-node-name: 1
+  n8n-workflow-expert/references/examples/05-composition/54-external-connection-naming.json::GET Users - Fetch Active Accounts::data/set-raw-mode-for-nested: 1
+  n8n-workflow-expert/references/examples/05-composition/54-external-connection-naming.json::GET Users - Fetch Active Accounts::hygiene/no-placeholder-api-url: 1
+  n8n-workflow-expert/references/examples/05-composition/54-external-connection-naming.json::POST Order - Create New Order::hygiene/no-placeholder-api-url: 1
+  n8n-workflow-expert/references/examples/05-composition/54-external-connection-naming.json::PATCH Order - Update Status to Shipped::hygiene/no-placeholder-api-url: 1
+  n8n-workflow-expert/references/examples/05-composition/54-external-connection-naming.json::DELETE Session - Logout User::hygiene/no-placeholder-api-url: 1
+  n8n-workflow-expert/references/examples/05-composition/56-poor-spacing-sparse.json::DebugHelper::naming/no-default-node-name: 1
+  n8n-workflow-expert/references/examples/05-composition/56-poor-spacing-sparse.json::Edit Fields::naming/no-default-node-name: 1
+  n8n-workflow-expert/references/examples/05-composition/56-poor-spacing-sparse.json::No Operation, do nothing::naming/no-default-node-name: 1
+  n8n-workflow-expert/references/examples/05-composition/56-poor-spacing-sparse.json::Aggregate::naming/no-default-node-name: 1
+  n8n-workflow-expert/references/examples/05-composition/56-poor-spacing-sparse.json::Summarize::naming/no-default-node-name: 1
+  n8n-workflow-expert/references/examples/05-composition/57-poor-node-naming.json::DebugHelper::naming/no-default-node-name: 1
+  n8n-workflow-expert/references/examples/05-composition/57-poor-node-naming.json::Edit Fields::data/set-raw-mode-for-nested: 1
+  n8n-workflow-expert/references/examples/05-composition/57-poor-node-naming.json::Edit Fields::naming/no-default-node-name: 1
+  n8n-workflow-expert/references/examples/05-composition/57-poor-node-naming.json::Edit Fields1::naming/no-default-node-name: 1
+  n8n-workflow-expert/references/examples/05-composition/57-poor-node-naming.json::Edit Fields2::naming/no-default-node-name: 1
+  n8n-workflow-expert/references/examples/05-composition/57-poor-node-naming.json::Code::naming/no-default-node-name: 1
+  n8n-workflow-expert/references/examples/06-best-practices/05-subworkflow-alignment.json::Add Metadata::structure/no-dangling-node: 1
+  n8n-workflow-expert/references/examples/06-best-practices/30-bridge-multi-stage.json::search_n8n_github_issues::n8n/valid: 1
+  n8n-workflow-expert/references/examples/06-best-practices/30-bridge-multi-stage.json::get_n8n_github_issue_comments::n8n/valid: 1
+  n8n-workflow-expert/references/examples/06-best-practices/30-bridge-multi-stage.json::search_n8n_community_discourse::n8n/valid: 1
+  n8n-workflow-expert/references/examples/06-best-practices/30-bridge-multi-stage.json::n8n Execution Error Triage Agent::hygiene/no-environment-literals: 1
+  n8n-workflow-expert/references/examples/06-best-practices/30-bridge-multi-stage.json::Structured Output Parser::naming/no-default-node-name: 1
+  n8n-workflow-expert/references/examples/06-best-practices/30-bridge-multi-stage.json::Send a message::naming/external-node-name-format: 1
+  n8n-workflow-expert/references/examples/06-best-practices/30-bridge-multi-stage.json::Send a message::reliability/http-retry-config: 1
+  n8n-workflow-expert/references/examples/06-best-practices/30-bridge-multi-stage.json::Compact Error Data::hygiene/no-environment-literals: 1
+  n8n-workflow-expert/references/examples/06-best-practices/30-bridge-multi-stage.json::Prompt for error analysis::naming/external-node-name-format: 1
+  n8n-workflow-expert/references/examples/06-best-practices/30-bridge-multi-stage.json::Prompt for error analysis::reliability/http-retry-config: 1
+  n8n-workflow-expert/references/examples/06-best-practices/30-bridge-multi-stage.json::GET thread history::naming/external-node-name-format: 1
+  n8n-workflow-expert/references/examples/06-best-practices/30-bridge-multi-stage.json::GET thread history::reliability/http-retry-config: 1
+  n8n-workflow-expert/references/examples/06-best-practices/30-bridge-multi-stage.json::Delete prompt message::naming/external-node-name-format: 1
+  n8n-workflow-expert/references/examples/06-best-practices/30-bridge-multi-stage.json::Delete prompt message::reliability/http-retry-config: 1
+  n8n-workflow-expert/references/examples/06-best-practices/30-bridge-multi-stage.json::Delete prompt message::structure/branch-entry-pass-through: 1
+  n8n-workflow-expert/references/examples/06-best-practices/30-bridge-multi-stage.json::Add a reaction::naming/external-node-name-format: 1
+  n8n-workflow-expert/references/examples/06-best-practices/30-bridge-multi-stage.json::Add a reaction::reliability/http-retry-config: 1
+  n8n-workflow-expert/references/examples/06-best-practices/30-bridge-multi-stage.json::Add a reaction::structure/branch-entry-pass-through: 1
+  n8n-workflow-expert/references/examples/06-best-practices/30-bridge-multi-stage.json::Remove a reaction::naming/external-node-name-format: 1
+  n8n-workflow-expert/references/examples/06-best-practices/30-bridge-multi-stage.json::Remove a reaction::naming/no-default-node-name: 1
+  n8n-workflow-expert/references/examples/06-best-practices/30-bridge-multi-stage.json::Remove a reaction::reliability/http-retry-config: 1
+  n8n-workflow-expert/references/examples/06-best-practices/30-bridge-multi-stage.json::Continue on prompt approval::naming/decision-node-question-mark: 1
+  n8n-workflow-expert/references/examples/06-best-practices/30-bridge-multi-stage.json::Dev environment?::hygiene/no-environment-literals: 1
+  n8n-workflow-expert/references/examples/06-best-practices/30-bridge-multi-stage.json::GET Prod n8n execution details::naming/external-node-name-format: 1
+  n8n-workflow-expert/references/examples/06-best-practices/30-bridge-multi-stage.json::GET Prod n8n execution details::reliability/http-retry-config: 1
+  n8n-workflow-expert/references/examples/06-best-practices/30-bridge-multi-stage.json::GET Prod n8n execution details::structure/branch-entry-pass-through: 1
+  n8n-workflow-expert/references/examples/06-best-practices/30-bridge-multi-stage.json::GET Dev n8n execution details::naming/external-node-name-format: 1
+  n8n-workflow-expert/references/examples/06-best-practices/30-bridge-multi-stage.json::GET Dev n8n execution details::reliability/http-retry-config: 1
+  n8n-workflow-expert/references/examples/06-best-practices/30-bridge-multi-stage.json::GET Dev n8n execution details::structure/branch-entry-pass-through: 1
+  n8n-workflow-expert/references/examples/06-best-practices/30-bridge-multi-stage.json::Merge::naming/no-default-node-name: 1
+  n8n-workflow-expert/references/examples/06-best-practices/30-bridge-multi-stage.json::Send Error Message Slack Channel::hygiene/no-environment-literals: 1
+  n8n-workflow-expert/references/examples/06-best-practices/30-bridge-multi-stage.json::Send Error Message Slack Channel::naming/external-node-name-format: 1
+  n8n-workflow-expert/references/examples/06-best-practices/30-bridge-multi-stage.json::Send Error Message Slack Channel::reliability/retry-respects-retry-after: 1
+  n8n-workflow-expert/references/examples/06-best-practices/30-bridge-multi-stage.json::Add finished reaction::naming/external-node-name-format: 1
+  n8n-workflow-expert/references/examples/06-best-practices/30-bridge-multi-stage.json::Add finished reaction::reliability/http-retry-config: 1
+  n8n-workflow-expert/references/examples/06-best-practices/34-bridge-node-mocking.json::GET Slack - Lookup by Email::reliability/http-retry-config: 1
+  n8n-workflow-expert/references/examples/06-best-practices/34-bridge-node-mocking.json::Slack - Get User Profile::naming/external-node-name-format: 1
+  n8n-workflow-expert/references/examples/06-best-practices/34-bridge-node-mocking.json::Slack - Get User Profile::reliability/http-retry-config: 1
+  n8n-workflow-expert/references/examples/06-best-practices/34-bridge-node-mocking.json::Slack - Post Welcome::naming/external-node-name-format: 1
+  n8n-workflow-expert/references/examples/06-best-practices/34-bridge-node-mocking.json::Slack - Post Welcome::reliability/http-retry-config: 1
+  "n8n-workflow-expert/references/examples/06-best-practices/53-pattern-comparison-grid.json::Octopus: AI Agent::n8n/typeversion-policy": 2
+  "n8n-workflow-expert/references/examples/06-best-practices/53-pattern-comparison-grid.json::Octopus: AI Agent::naming/external-node-name-format": 1
+  "n8n-workflow-expert/references/examples/06-best-practices/53-pattern-comparison-grid.json::Octopus: AI Agent::reliability/http-retry-config": 1
+  "n8n-workflow-expert/references/examples/06-best-practices/53-pattern-comparison-grid.json::Octopus: Search Tool::n8n/valid": 1
+  "n8n-workflow-expert/references/examples/06-best-practices/53-pattern-comparison-grid.json::Octopus: Lookup Tool::n8n/valid": 1
+  "n8n-workflow-expert/references/examples/06-best-practices/53-pattern-comparison-grid.json::Octopus: Write Tool::n8n/valid": 1
+  "n8n-workflow-expert/references/examples/06-best-practices/53-pattern-comparison-grid.json::Octopus: OpenAI::n8n/typeversion-policy": 1
+  "n8n-workflow-expert/references/examples/06-best-practices/53-pattern-comparison-grid.json::Wall: Branch 1::structure/merge-for-reconvergence": 1
+  "n8n-workflow-expert/references/examples/06-best-practices/53-pattern-comparison-grid.json::Wall: Branch 2::structure/merge-for-reconvergence": 1
+  "n8n-workflow-expert/references/examples/06-best-practices/53-pattern-comparison-grid.json::Wall: Shared Node::structure/merge-for-reconvergence": 1

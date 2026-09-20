@@ -1,0 +1,35 @@
+{
+  "name": "workflow-lint-monorepo",
+  "private": true,
+  "packageManager": "pnpm@10.22.0",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "build": "pnpm -r --filter '!workflow-lint' build && pnpm --filter workflow-lint build",
+    "test": "vitest run",
+    "typecheck": "pnpm -r typecheck",
+    "test:offline": "unshare -rn vitest run || vitest run",
+    "verify": "pnpm build && pnpm typecheck && pnpm test",
+    "docs:rules": "pnpm build && tsx scripts/gen-rule-docs.ts",
+    "demo": "pnpm build && node scripts/demo.mjs",
+    "smoke": "bash scripts/smoke.sh all"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "esbuild": "^0.24.2",
+    "rollup": "^4.63.1",
+    "rollup-plugin-dts": "^6.5.1",
+    "tsx": "^4.16.0",
+    "typescript": "^5.5.0",
+    "vitest": "^2.0.0",
+    "workflow-lint-core": "workspace:*",
+    "workflow-lint-fmt": "workspace:*",
+    "workflow-lint-mcp": "workspace:*",
+    "workflow-lint-node-types": "workspace:*",
+    "workflow-lint-plugin-n8n": "workspace:*",
+    "workflow-lint-plugin-standards": "workspace:*"
+  }
+}

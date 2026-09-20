@@ -1,0 +1,47 @@
+[
+  {
+    "displayName": "Thing",
+    "name": "thing",
+    "group": [
+      "transform"
+    ],
+    "version": 1,
+    "description": "",
+    "defaults": {
+      "name": "Thing"
+    },
+    "inputs": [
+      "main"
+    ],
+    "outputs": [
+      "main"
+    ],
+    "properties": [
+      {
+        "displayName": "startDate",
+        "name": "startDate",
+        "type": "string",
+        "default": "2026-02-08T00:00:00.000+00:00"
+      }
+    ]
+  },
+  {
+    "displayName": "Gone",
+    "name": "gone",
+    "group": [
+      "transform"
+    ],
+    "version": 1,
+    "description": "",
+    "defaults": {
+      "name": "Gone"
+    },
+    "inputs": [
+      "main"
+    ],
+    "outputs": [
+      "main"
+    ],
+    "properties": []
+  }
+]

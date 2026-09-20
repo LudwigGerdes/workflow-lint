@@ -1,0 +1,50 @@
+{
+  "name": "workflow-lint-plugin-standards",
+  "version": "0.1.0",
+  "private": true,
+  "description": "workflow-lint naming, structure, reliability, data and hygiene rules for n8n workflows",
+  "keywords": [
+    "n8n",
+    "n8n-workflow",
+    "linter",
+    "rules",
+    "best-practices",
+    "workflow-quality"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/LudwigGerdes/workflow-lint.git",
+    "directory": "packages/plugin-standards"
+  },
+  "homepage": "https://github.com/LudwigGerdes/workflow-lint#readme",
+  "bugs": "https://github.com/LudwigGerdes/workflow-lint/issues",
+  "engines": {
+    "node": ">=24"
+  },
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "development": "./src/index.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "workflow-lint-core": "workspace:*",
+    "n8n-workflow": "2.38.1",
+    "acorn": "^8.12.0",
+    "workflow-lint-fmt": "workspace:*"
+  },
+  "devDependencies": {
+    "workflow-lint-node-types": "workspace:*",
+    "@types/estree": "^1.0.5"
+  }
+}

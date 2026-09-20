@@ -1,0 +1,80 @@
+name: CI
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [24, 26]
+    steps:
+      - uses: actions/checkout@v4
+      # No version here: the action reads package.json's "packageManager",
+      # and specifying both is an error.
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - run: pnpm typecheck
+      - run: pnpm test
+
+      # The offline principle, actually enforced: no network namespace at all.
+      # Linux-only, which is why it lives here rather than in `pnpm verify`.
+      - name: Test suite with networking disabled
+        run: |
+          # ubuntu-latest is 24.04, which blocks unprivileged user namespaces
+          # through AppArmor; `unshare -rn` needs them and fails with
+          # "write failed /proc/self/uid_map". Re-enable for this runner only.
+          sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+          unshare -rn pnpm test
+
+      # Generated rule docs are derived from rule metadata; they must not drift.
+      - name: Rule docs are up to date
+        run: |
+          pnpm docs:rules
+          git diff --exit-code -- docs/rules
+
+  # Install-level acceptance: a fresh clone builds and runs, and the ONE
+  # published package installs from its tarball into an empty project and does
+  # everything the README promises. Unit tests cannot see packaging mistakes
+  # (the workspace hoists everything); this can. No display, no browser.
+  smoke:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        # macOS minutes are billed at 10x on private repositories, so the macOS lane
+        # switches on by itself the moment the repository is public.
+        os: ${{ fromJSON(github.event.repository.private && '["ubuntu-latest"]' || '["ubuntu-latest","macos-latest"]') }}
+        node: [24, 26]
+    steps:
+      - uses: actions/checkout@v4
+      # No version here: the action reads package.json's "packageManager".
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - run: pnpm smoke
+
+      # The published package directory, linted as npm consumers will see it.
+      - name: package-lint (publint)
+        working-directory: packages/cli
+        run: npx --yes publint --strict
+      # esm-only: the package is ESM by design ("type": "module", Node >= 24),
+      # so "cannot be require()d" (node10, node16-from-CJS) is the documented,
+      # intended state rather than a defect. Everything else still fails the job.
+      - name: package-lint (are the types wrong)
+        working-directory: packages/cli
+        run: npx --yes @arethetypeswrong/cli --pack . --profile esm-only

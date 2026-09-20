@@ -1,0 +1,53 @@
+[
+  {
+    "displayName": "Thing",
+    "name": "thing",
+    "group": [
+      "transform"
+    ],
+    "version": 1,
+    "description": "",
+    "defaults": {
+      "name": "Thing"
+    },
+    "inputs": [
+      "main"
+    ],
+    "outputs": [
+      "main"
+    ],
+    "properties": [
+      {
+        "displayName": "startDate",
+        "name": "startDate",
+        "type": "string",
+        "default": "2026-02-15T00:00:00.000+00:00"
+      },
+      {
+        "displayName": "brandNew",
+        "name": "brandNew",
+        "type": "string",
+        "default": ""
+      }
+    ]
+  },
+  {
+    "displayName": "Fresh",
+    "name": "fresh",
+    "group": [
+      "transform"
+    ],
+    "version": 1,
+    "description": "",
+    "defaults": {
+      "name": "Fresh"
+    },
+    "inputs": [
+      "main"
+    ],
+    "outputs": [
+      "main"
+    ],
+    "properties": []
+  }
+]

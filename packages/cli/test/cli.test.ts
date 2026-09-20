@@ -1,0 +1,232 @@
+import { describe, it, expect, beforeEach } from 'vitest';
+import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { buildProgram } from '../src/index.js';
+
+const NAME_RULE = 'naming/no-default-node-name';
+
+const workflow = (nodes: object[], connections: Record<string, unknown> = {}) =>
+  JSON.stringify({ name: 'Fixture', nodes, connections, settings: {} }, null, 2);
+
+const trigger = {
+  name: 'When clicking Test',
+  type: 'n8n-nodes-base.manualTrigger',
+  typeVersion: 1,
+  position: [0, 0],
+  parameters: {},
+};
+const node = (name: string, type: string, typeVersion: number, parameters = {}) => ({
+  name,
+  type,
+  typeVersion,
+  position: [192, 0],
+  parameters,
+});
+
+let dir: string;
+let out: string;
+let err: string;
+let code: number;
+
+const run = async (args: string[], stdin = '') => {
+  out = '';
+  err = '';
+  code = 0;
+  await buildProgram({
+    write: (t) => {
+      out += t;
+    },
+    writeErr: (t) => {
+      err += t;
+    },
+    cwd: dir,
+    readStdin: async () => stdin,
+    setExitCode: (c) => {
+      code = c;
+    },
+  }).parseAsync(['lint', ...args], { from: 'user' });
+};
+
+beforeEach(() => {
+  dir = mkdtempSync(join(tmpdir(), 'workflow-lint-cli-'));
+  writeFileSync(
+    join(dir, 'default-names.json'),
+    workflow([trigger, node('Edit Fields', 'n8n-nodes-base.set', 3.4)]),
+  );
+  writeFileSync(
+    join(dir, 'clean.json'),
+    workflow([trigger, node('Shape Payload', 'n8n-nodes-base.set', 3.4)]),
+  );
+});
+
+describe('workflow-lint lint', () => {
+  it('reports findings and a summary in stylish format', async () => {
+    await run(['default-names.json', '--rule', NAME_RULE]);
+    expect(out).toContain('default-names.json');
+    expect(out).toContain('warn');
+    expect(out).toContain(NAME_RULE);
+    expect(out).toContain('1 problem (0 errors, 1 warning)');
+    expect(code).toBe(0);
+  });
+
+  it('emits machine-readable json', async () => {
+    await run(['.', '--rule', NAME_RULE, '--format', 'json']);
+    const report = JSON.parse(out) as {
+      files: Array<{ path: string; findings: unknown[] }>;
+      summary: { files: number; warnings: number; errors: number };
+    };
+    expect(report.summary.warnings).toBe(1);
+    expect(report.summary.errors).toBe(0);
+    expect(report.files.map((f) => f.path).sort()).toEqual(['clean.json', 'default-names.json']);
+  });
+
+  it('exits 0 and prints nothing when clean', async () => {
+    await run(['clean.json', '--rule', NAME_RULE]);
+    expect(out).toBe('');
+    expect(code).toBe(0);
+  });
+
+  it('fails on warnings when asked', async () => {
+    // NAME_RULE is stylistic, so failing on it is opt-in.
+    await run([
+      'default-names.json',
+      '--rule',
+      NAME_RULE,
+      '--fail-on',
+      'warn',
+      '--fail-on-stylistic',
+    ]);
+    expect(code).toBe(1);
+  });
+
+  it('does not fail on a stylistic warning by default', async () => {
+    await run(['default-names.json', '--rule', NAME_RULE, '--fail-on', 'warn']);
+    expect(code).toBe(0);
+  });
+
+  it('runs only the named class', async () => {
+    await run(['default-names.json', '--class', 'quality', '--format', 'json']);
+    const report = JSON.parse(out) as { files: Array<{ findings: Array<{ ruleId: string }> }> };
+    const ids = report.files.flatMap((f) => f.findings.map((x) => x.ruleId));
+    expect(ids).not.toContain(NAME_RULE);
+  });
+
+  it('rejects an unknown class', async () => {
+    await run(['default-names.json', '--class', 'cosmetic']);
+    expect(code).toBe(2);
+    expect(err).toContain('unknown --class');
+  });
+
+  it('fails when warnings exceed --max-warnings', async () => {
+    await run([
+      'default-names.json',
+      '--rule',
+      NAME_RULE,
+      '--max-warnings',
+      '0',
+      '--fail-on-stylistic',
+    ]);
+    expect(code).toBe(1);
+    expect(err).toContain('exceed the --max-warnings limit');
+  });
+
+  it('reports a parse error and exits 2', async () => {
+    writeFileSync(join(dir, 'broken.json'), '{ "nodes": [ ');
+    await run(['broken.json']);
+    expect(out).toContain('parse-error');
+    expect(code).toBe(2);
+  });
+
+  it('skips JSON that is not a workflow', async () => {
+    writeFileSync(join(dir, 'data.json'), JSON.stringify({ hello: 'world' }));
+    writeFileSync(join(dir, 'package.json'), JSON.stringify({ name: 'ignored' }));
+    await run(['.', '--rule', NAME_RULE, '--format', 'json']);
+    const report = JSON.parse(out) as { files: Array<{ path: string }> };
+    expect(report.files.map((f) => f.path).sort()).toEqual(['clean.json', 'default-names.json']);
+  });
+
+  it('reports an explicitly named file that is not a workflow, and exits 2', async () => {
+    writeFileSync(join(dir, 'data.json'), JSON.stringify({ hello: 'world', items: [1, 2, 3] }));
+    await run(['data.json']);
+    expect(out).toContain('data.json');
+    expect(out).toContain('not an n8n workflow');
+    expect(out).toContain('1 problem (1 error, 0 warnings)');
+    expect(code).toBe(2);
+  });
+
+  it('reports stdin that is not a workflow, and exits 2', async () => {
+    await run(['-', '--format', 'json'], JSON.stringify({ hello: 'world' }));
+    const report = JSON.parse(out) as { summary: { errors: number } };
+    expect(report.summary.errors).toBe(1);
+    expect(code).toBe(2);
+  });
+
+  it('applies safe fixes in place', async () => {
+    const file = join(dir, 'question.json');
+    writeFileSync(file, workflow([trigger, node('Is Valid', 'n8n-nodes-base.if', 2.2)]));
+    await run(['question.json', '--rule', 'naming/decision-node-question-mark', '--fix']);
+    const fixed = JSON.parse(readFileSync(file, 'utf8')) as { nodes: Array<{ name: string }> };
+    expect(fixed.nodes[1]!.name).toBe('Is Valid?');
+  });
+
+  it('lints stdin as a single workflow', async () => {
+    const text = workflow([trigger, node('Edit Fields', 'n8n-nodes-base.set', 3.4)]);
+    await run(['-', '--rule', NAME_RULE, '--format', 'json'], text);
+    const report = JSON.parse(out) as { files: Array<{ path: string; findings: unknown[] }> };
+    expect(report.files).toHaveLength(1);
+    expect(report.files[0]!.path).toBe('<stdin>');
+    expect(report.files[0]!.findings).toHaveLength(1);
+  });
+
+  it('reports only errors with --quiet', async () => {
+    await run(['default-names.json', '--rule', NAME_RULE, '--quiet']);
+    expect(out).toBe('');
+    expect(code).toBe(0);
+  });
+
+  it('rejects an unknown rule as a usage error', async () => {
+    await run(['.', '--rule', 'nope/nope']);
+    expect(err).toContain('unknown rule "nope/nope"');
+    expect(code).toBe(2);
+  });
+
+  it('rejects an unknown format', async () => {
+    await run(['.', '--format', 'xml']);
+    expect(err).toContain('unknown format');
+    expect(code).toBe(2);
+  });
+
+  it('honours a config file in the working directory', async () => {
+    writeFileSync(
+      join(dir, 'workflow-lint.config.yaml'),
+      `extends: [workflow-lint:recommended]\nrules:\n  ${NAME_RULE}: error\n`,
+    );
+    await run(['default-names.json', '--rule', NAME_RULE, '--format', 'json']);
+    const report = JSON.parse(out) as { summary: { errors: number } };
+    expect(report.summary.errors).toBe(1);
+  });
+});
+
+describe('workflow-lint --version', () => {
+  it('prints the CLI package version and exits 0', async () => {
+    const { version } = JSON.parse(
+      readFileSync(new URL('../package.json', import.meta.url), 'utf8'),
+    ) as { version: string };
+    let printed = '';
+    const program = buildProgram({
+      write: (t) => {
+        printed += t;
+      },
+      writeErr: () => {},
+      cwd: dir,
+      readStdin: async () => '',
+      setExitCode: () => {},
+    });
+    // exitOverride turns commander's successful exit into a throw with code 0.
+    await expect(program.parseAsync(['--version'], { from: 'user' })).rejects.toMatchObject({
+      exitCode: 0,
+    });
+    expect(printed.trim()).toBe(version);
+  });
+});

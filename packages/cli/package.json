@@ -1,0 +1,86 @@
+{
+  "name": "workflow-lint",
+  "version": "0.1.0",
+  "description": "Semantic linter and layout formatter for n8n workflow JSON: CLI, MCP server and rule-author API in one package",
+  "keywords": [
+    "n8n",
+    "n8n-workflow",
+    "linter",
+    "formatter",
+    "cli",
+    "lint",
+    "mcp",
+    "model-context-protocol",
+    "workflow-automation"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LudwigGerdes/workflow-lint.git",
+    "directory": "packages/cli"
+  },
+  "homepage": "https://github.com/LudwigGerdes/workflow-lint#readme",
+  "bugs": "https://github.com/LudwigGerdes/workflow-lint/issues",
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./core": {
+      "types": "./dist/core.d.ts",
+      "import": "./dist/core.js"
+    },
+    "./rule-tester": {
+      "types": "./dist/rule-tester.d.ts",
+      "import": "./dist/rule-tester.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "bin": {
+    "workflow-lint": "./dist/bin.js",
+    "workflow-lint-mcp": "./dist/mcp.js"
+  },
+  "files": [
+    "dist",
+    "versions",
+    "THIRD_PARTY_NOTICES.md"
+  ],
+  "scripts": {
+    "build": "node build.mjs",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "prepack": "node ../../scripts/pack-files.mjs pre",
+    "postpack": "node ../../scripts/pack-files.mjs post"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "acorn": "^8.12.0",
+    "commander": "^12.1.0",
+    "glob": "^11.0.0",
+    "ignore": "^7.0.8",
+    "json-source-map": "^0.6.1",
+    "n8n-workflow": "2.38.1",
+    "picocolors": "^1.0.1",
+    "picomatch": "^4.0.2",
+    "semver": "^7.6.0",
+    "yaml": "^2.5.0",
+    "zod": "^3.23.8"
+  },
+  "peerDependencies": {
+    "vitest": ">=2.0.0"
+  },
+  "peerDependenciesMeta": {
+    "vitest": {
+      "optional": true
+    }
+  }
+}

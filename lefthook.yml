@@ -1,0 +1,45 @@
+# Pre-commit checks for n8n workflow JSON.
+#
+#   npx lefthook install
+#
+# lefthook only runs a command when its glob matches staged files, so a commit
+# touching no JSON never invokes the linter at all. The glob is deliberately
+# '*.json': a file named explicitly is linted whatever its extension, so a
+# README or a .yaml in the list would be reported as a parse error.
+#
+# ---------------------------------------------------------------------------
+# Version drift
+# ---------------------------------------------------------------------------
+# `n8n/typeversion-drift` is an error, so it blocks here: a node carrying a
+# typeVersion the target n8n does not know imports without complaint and fails
+# when it runs, which is the one skew that a successful deploy hides.
+#
+# It is SILENT unless a target version is known. A hook that quietly checks
+# nothing is worse than no hook, so pin one — either repo-wide:
+#
+#   settings:
+#     n8nVersion: 2.38.3
+#
+# or, when the same workflow lives in several directories at different
+# versions, per directory. `workflow-lint fleet` derives that from a manifest naming
+# each environment's directory and version:
+#
+#   workflow-lint fleet instances.json >> workflow-lint.config.yaml
+#
+# `n8n/typeversion-policy` reports when no version is pinned, so an unpinned
+# repo says so on every run rather than passing in silence.
+pre-commit:
+  parallel: true
+  commands:
+    lint-workflows:
+      glob: '*.json'
+      # The demo's sample workflow is wrong on purpose.
+      exclude: 'docs/demo/order-sync.json'
+      # {staged_files} includes paths deleted in this same commit, hence
+      # --no-error-on-unmatched-pattern.
+      run: node packages/cli/dist/bin.js lint {staged_files} --fail-on error --no-error-on-unmatched-pattern
+
+    format-workflows:
+      glob: '*.json'
+      exclude: 'docs/demo/order-sync.json'
+      run: node packages/cli/dist/bin.js fmt {staged_files} --check --no-error-on-unmatched-pattern

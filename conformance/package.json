@@ -1,0 +1,17 @@
+{
+  "name": "workflow-lint-conformance",
+  "version": "0.1.0",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "description": "Seam conformance tests owned by workflow-lint; consumers copy these verbatim.",
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "build": "echo no build"
+  },
+  "dependencies": {
+    "workflow-lint-core": "workspace:*",
+    "workflow-lint-node-types": "workspace:*"
+  }
+}

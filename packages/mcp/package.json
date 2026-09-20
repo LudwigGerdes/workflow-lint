@@ -1,0 +1,49 @@
+{
+  "name": "workflow-lint-mcp",
+  "version": "0.1.0",
+  "private": true,
+  "description": "workflow-lint as a stdio MCP server: lint, fix and format n8n workflows from an AI agent",
+  "keywords": [
+    "n8n",
+    "n8n-workflow",
+    "mcp",
+    "model-context-protocol",
+    "linter",
+    "ai-agent"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/LudwigGerdes/workflow-lint.git",
+    "directory": "packages/mcp"
+  },
+  "homepage": "https://github.com/LudwigGerdes/workflow-lint#readme",
+  "bugs": "https://github.com/LudwigGerdes/workflow-lint/issues",
+  "engines": {
+    "node": ">=24"
+  },
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "development": "./src/index.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "workflow-lint-node-types": "workspace:*",
+    "workflow-lint-core": "workspace:*",
+    "workflow-lint-fmt": "workspace:*",
+    "workflow-lint-plugin-n8n": "workspace:*",
+    "workflow-lint-plugin-standards": "workspace:*",
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "zod": "^3.23.8"
+  }
+}

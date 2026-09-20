@@ -1,0 +1,50 @@
+name: Bug report
+description: Something workflow-lint did wrong, or failed to do
+labels: [bug]
+body:
+  - type: input
+    id: tool-version
+    attributes:
+      label: workflow-lint version
+      description: Output of `node packages/cli/dist/bin.js --version` (or `workflow-lint --version`)
+      placeholder: 0.1.0
+    validations:
+      required: true
+  - type: input
+    id: n8n-version
+    attributes:
+      label: n8n version
+      description: The n8n version you lint against (`--n8n-version` or `settings.n8nVersion`), and the one your instance runs if different
+      placeholder: 2.38.3
+    validations:
+      required: true
+  - type: input
+    id: node-version
+    attributes:
+      label: Node version
+      description: Output of `node --version`
+      placeholder: v22.x
+    validations:
+      required: true
+  - type: textarea
+    id: workflow
+    attributes:
+      label: Minimal workflow JSON
+      description: The smallest workflow that shows the problem. Remove credentials, instance ids and anything private first.
+      render: json
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected
+      description: What you expected workflow-lint to report or do
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual
+      description: What it reported or did instead — paste the exact output and exit code
+    validations:
+      required: true

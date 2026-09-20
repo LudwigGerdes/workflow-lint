@@ -1,0 +1,45 @@
+{
+  "name": "workflow-lint-fmt",
+  "version": "0.1.0",
+  "private": true,
+  "description": "workflow-lint layout formatter: normalises n8n canvas geometry deterministically",
+  "keywords": [
+    "n8n",
+    "n8n-workflow",
+    "formatter",
+    "layout",
+    "canvas",
+    "prettier"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/LudwigGerdes/workflow-lint.git",
+    "directory": "packages/fmt"
+  },
+  "homepage": "https://github.com/LudwigGerdes/workflow-lint#readme",
+  "bugs": "https://github.com/LudwigGerdes/workflow-lint/issues",
+  "engines": {
+    "node": ">=24"
+  },
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "development": "./src/index.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "workflow-lint-core": "workspace:*",
+    "n8n-workflow": "2.38.1",
+    "workflow-lint-node-types": "workspace:*"
+  }
+}

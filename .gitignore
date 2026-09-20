@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.workflow-lint-baseline.yaml
+*.log
+.DS_Store
+
+# staged at pack time by scripts/pack-files.mjs, removed at postpack
+packages/cli/LICENSE
+packages/cli/README.md
+packages/cli/THIRD_PARTY_NOTICES.md
+packages/cli/versions/
+packages/cli/.types/

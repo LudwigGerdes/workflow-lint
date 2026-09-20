@@ -1,0 +1,62 @@
+name: workflow-lint
+description: Lint and format workflow JSON; ships with n8n support
+
+inputs:
+  paths:
+    description: Files or directories to lint
+    default: '.'
+  n8n-version:
+    description: n8n version to lint against; unpinned findings are advisory only
+    required: false
+  config:
+    description: Path to a workflow-lint config file
+    required: false
+  fail-on:
+    description: Lowest severity that fails the run (info, warn, error)
+    default: error
+  format:
+    description: stylish, json, sarif, junit or github-actions
+    default: github-actions
+
+runs:
+  using: composite
+  steps:
+    # Read the pnpm version from this action's own package.json, not the
+    # consumer's: a consumer that also declares packageManager would otherwise
+    # make pnpm/action-setup fail with "Multiple versions of pnpm specified".
+    - uses: pnpm/action-setup@v4
+      with:
+        package_json_file: ${{ github.action_path }}/package.json
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 24
+
+    # Builds from the action's own checkout. `pnpm build` bundles everything
+    # into packages/cli/dist (the one published package), which is what the
+    # last step runs; `pnpm smoke` asserts that path exists in a fresh clone.
+    # After the first real publish this can become a single step with no
+    # pnpm/build at all:  npx --yes workflow-lint@<version> "${args[@]}"
+    - shell: bash
+      working-directory: ${{ github.action_path }}
+      run: pnpm install --frozen-lockfile && pnpm build
+
+    - shell: bash
+      env:
+        INPUT_PATHS: ${{ inputs.paths }}
+        INPUT_N8N_VERSION: ${{ inputs.n8n-version }}
+        INPUT_CONFIG: ${{ inputs.config }}
+        INPUT_FAIL_ON: ${{ inputs.fail-on }}
+        INPUT_FORMAT: ${{ inputs.format }}
+      run: |
+        # Built as an array rather than interpolated into one string, so an
+        # empty optional input cannot become a stray empty argument.
+        args=(lint)
+        for path in $INPUT_PATHS; do args+=("$path"); done
+        args+=(--format "$INPUT_FORMAT" --fail-on "$INPUT_FAIL_ON")
+        if [ -n "$INPUT_N8N_VERSION" ]; then
+          args+=(--n8n-version "$INPUT_N8N_VERSION")
+        fi
+        if [ -n "$INPUT_CONFIG" ]; then
+          args+=(--config "$INPUT_CONFIG")
+        fi
+        node "$GITHUB_ACTION_PATH/packages/cli/dist/bin.js" "${args[@]}"

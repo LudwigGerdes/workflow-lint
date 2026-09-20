@@ -1,0 +1,13 @@
+{
+  "n8nVersion": "2.38.3",
+  "bundledAt": "2026-09-05T16:37:15.341Z",
+  "libs": {
+    "n8n-workflow": "2.38.1",
+    "n8n-nodes-base": "2.38.1",
+    "@n8n/n8n-nodes-langchain": "2.38.1"
+  },
+  "sources": {
+    "base": "n8n-nodes-base@2.38.1",
+    "langchain": "@n8n/n8n-nodes-langchain@2.38.1"
+  }
+}

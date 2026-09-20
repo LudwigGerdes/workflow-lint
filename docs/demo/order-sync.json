@@ -1,0 +1,83 @@
+{
+  "name": "Order Sync",
+  "nodes": [
+    {
+      "name": "Order Received",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        13,
+        47
+      ],
+      "parameters": {
+        "path": "orders",
+        "responseMode": "onReceived"
+      }
+    },
+    {
+      "name": "Is Valid",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        880,
+        610
+      ],
+      "parameters": {}
+    },
+    {
+      "name": "HTTP Request",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1500,
+        90
+      ],
+      "parameters": {
+        "url": "https://api.example.com/orders",
+        "options": {}
+      }
+    },
+    {
+      "name": "Edit Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1500,
+        980
+      ],
+      "parameters": {}
+    }
+  ],
+  "connections": {
+    "Order Received": {
+      "main": [
+        [
+          {
+            "node": "Is Valid",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Valid": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {}
+}

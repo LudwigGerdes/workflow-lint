@@ -1,0 +1,49 @@
+{
+  "name": "workflow-lint-node-types",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Bundled n8n node descriptions with offline version resolution and a structural diff",
+  "keywords": [
+    "n8n",
+    "n8n-workflow",
+    "node-types",
+    "node-descriptions",
+    "offline",
+    "typeversion"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/LudwigGerdes/workflow-lint.git",
+    "directory": "packages/node-types"
+  },
+  "homepage": "https://github.com/LudwigGerdes/workflow-lint#readme",
+  "bugs": "https://github.com/LudwigGerdes/workflow-lint/issues",
+  "engines": {
+    "node": ">=24"
+  },
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "development": "./src/index.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "bundle": "tsx scripts/bundle.ts"
+  },
+  "dependencies": {
+    "n8n-workflow": "2.38.1",
+    "semver": "^7.6.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.16.0",
+    "@types/semver": "^7.5.8"
+  }
+}
