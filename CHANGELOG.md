@@ -7,6 +7,17 @@ All notable changes to workflow-lint are recorded here. The format follows
 ## [Unreleased]
 
 ### Changed
+
+- README: the npm quickstart downloads a sample workflow so it runs as pasted, and says how npm users invoke the recipes. `pnpm demo` prints the exact commands it runs, `--n8n-version` included.
+
+## 0.1.0 — 2026-09-20
+
+First public release: 31 rules across seven departments, safe and unsafe
+autofixes, stylish / JSON / SARIF / JUnit / GitHub Actions reporters, a
+baseline, the `fmt` layout formatter, a pre-commit recipe, a composite GitHub
+Action and a stdio MCP server. Bundles n8n 2.38.3 node descriptions.
+
+### Changed
 - **Node >= 24 is now required.** The install-level smoke test found that plain
   `npm install` fails on Node 20, because `n8n-workflow` 2.38 pulls in the native
   module `isolated-vm` 7, which supports Node 24 and newer only.
@@ -61,13 +72,4 @@ All notable changes to workflow-lint are recorded here. The format follows
 
 ### Changed
 
-- Every workspace package carries publish-ready metadata at version 0.1.0.
-  Nothing is published to npm yet.
 - README rewritten around a quickstart that works from a checkout.
-
-## 0.1.0 — unreleased
-
-First public release: 31 rules across seven departments, safe and unsafe
-autofixes, stylish / JSON / SARIF / JUnit / GitHub Actions reporters, a
-baseline, the `fmt` layout formatter, a pre-commit recipe, a composite GitHub
-Action and a stdio MCP server. Bundles n8n 2.38.3 node descriptions.
