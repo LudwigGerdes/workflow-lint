@@ -46,7 +46,7 @@ An explicit rule setting beats its department's setting. Overrides apply last.
 
 Set `settings.n8nVersion`, or pass `--n8n-version`.
 
-- Without a pinned version, findings that depend on the n8n version are reported as information only, and `n8n/typeversion-policy` says so on every run.
+- Without a pinned version, findings that depend on the n8n version are withheld, and `n8n/typeversion-policy` says so on every run.
 - If the pinned version is not installed, lint continues against the nearest version it has and names it on stderr. Run `workflow-lint node-types install <version>` for exact results.
 
 ## Suppressing a finding

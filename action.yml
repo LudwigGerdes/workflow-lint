@@ -6,7 +6,7 @@ inputs:
     description: Files or directories to lint
     default: '.'
   n8n-version:
-    description: n8n version to lint against; unpinned findings are advisory only
+    description: n8n version to lint against; without it, version-dependent findings are withheld
     required: false
   config:
     description: Path to a workflow-lint config file

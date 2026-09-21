@@ -29,7 +29,7 @@ No. Every command is static and works offline. The MCP server can read from one 
 
 ### Which n8n versions does it support?
 
-Node descriptions for 2.38.3 ship in the package, and `node-types install <version>` fetches others. Pin `settings.n8nVersion`, or findings that depend on the version are advisory only.
+Node descriptions for 2.38.3 ship in the package, and `node-types install <version>` fetches others. Pin `settings.n8nVersion`, or findings that depend on the version are withheld.
 
 ### Why did a rule fire?
 
