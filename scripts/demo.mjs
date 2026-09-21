@@ -64,7 +64,7 @@ run(['lint', 'order-sync.json', ...V]);
 console.log(dim('Exit 1: one finding is an error, and --fail-on defaults to error.'));
 
 heading('Safe autofix, and what it deliberately leaves alone');
-show('workflow-lint lint order-sync.json --fix');
+show('workflow-lint lint order-sync.json --n8n-version 2.38.3 --fix');
 run(['lint', 'order-sync.json', ...V, '--fix']);
 const fixed = JSON.parse(readFileSync(file, 'utf8'));
 console.log(dim(`  "Is Valid" renamed to "${fixed.nodes[1].name}" — and the connection`));
@@ -73,39 +73,39 @@ console.log(dim('  The placeholder URL is NOT auto-fixed: no safe value exists.'
 
 heading('Exit codes are CI-shaped');
 console.log(dim('  Same file, now that --fix has removed the only error-severity finding.'));
-show('workflow-lint lint order-sync.json                  # default --fail-on error');
+show('workflow-lint lint order-sync.json --n8n-version 2.38.3 # default --fail-on error');
 run(['lint', 'order-sync.json', ...V], { silent: true });
-show('workflow-lint lint order-sync.json --fail-on warn');
+show('workflow-lint lint order-sync.json --n8n-version 2.38.3 --fail-on warn');
 run(['lint', 'order-sync.json', ...V, '--fail-on', 'warn'], { silent: true });
 show('workflow-lint lint --format nope                    # usage error');
 run(['lint', '--format', 'nope'], { showErr: true, silent: true });
 
 heading('The formatter is separate from the linter');
 write();
-show('workflow-lint fmt order-sync.json --check');
+show('workflow-lint fmt order-sync.json --n8n-version 2.38.3 --check');
 run(['fmt', 'order-sync.json', ...V, '--check']);
-show('workflow-lint fmt order-sync.json');
+show('workflow-lint fmt order-sync.json --n8n-version 2.38.3');
 run(['fmt', 'order-sync.json', ...V]);
 const laid = JSON.parse(readFileSync(file, 'utf8'));
 console.log(dim(`  entry node keeps the author's position ${JSON.stringify(laid.nodes[0].position)};`));
 console.log(dim(`  the rest follow from it: ${laid.nodes.slice(1).map((n) => JSON.stringify(n.position)).join(' ')}`));
-show('workflow-lint fmt order-sync.json --check   # idempotent');
+show('workflow-lint fmt order-sync.json --n8n-version 2.38.3 --check   # idempotent');
 run(['fmt', 'order-sync.json', ...V, '--check']);
 
 heading('Reporters for wherever the findings need to land');
 write();
-show('workflow-lint lint order-sync.json --format github-actions');
+show('workflow-lint lint order-sync.json --n8n-version 2.38.3 --format github-actions');
 run(['lint', 'order-sync.json', ...V, '--format', 'github-actions']);
-show('workflow-lint lint order-sync.json --format canvas-overlay   # reserved, seam S6');
+show('workflow-lint lint order-sync.json --n8n-version 2.38.3 --format canvas-overlay   # reserved');
 const overlay = spawnSync('node', [BIN, 'lint', 'order-sync.json', ...V, '--format', 'canvas-overlay'],
   { cwd: dir, encoding: 'utf8' });
 const parsed = JSON.parse(overlay.stdout);
 console.log(JSON.stringify({ version: parsed.version, nodes: Object.keys(parsed.nodes), edges: parsed.edges }, null, 2));
 
 heading('Baseline: adopt on a project that is already imperfect');
-show('workflow-lint lint . --gen-baseline');
+show('workflow-lint lint . --n8n-version 2.38.3 --gen-baseline');
 run(['lint', '.', ...V, '--gen-baseline']);
-show('workflow-lint lint . --fail-on warn   # only NEW findings fail now');
+show('workflow-lint lint . --n8n-version 2.38.3 --fail-on warn   # only NEW findings fail now');
 run(['lint', '.', ...V, '--fail-on', 'warn']);
 
 heading('The node-type bundle, and what changed between versions');

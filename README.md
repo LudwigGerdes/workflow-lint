@@ -33,7 +33,7 @@ Exit 1: one finding is an error, and --fail-on defaults to error.
 
 ── 2. Safe autofix, and what it deliberately leaves alone ────────────────
 
-$ workflow-lint lint order-sync.json --fix
+$ workflow-lint lint order-sync.json --n8n-version 2.38.3 --fix
 order-sync.json
   4:5   info  reliability/webhook-input-contract   Webhook "Order Received" accepts its payload without checking it; validate the required fields and stop on bad input.
   27:5  warn  hygiene/no-placeholder-api-url       Node "HTTP Request" still points at the placeholder URL "https://api.example.com/orders".
@@ -60,9 +60,14 @@ An n8n workflow is a JSON file that is only ever checked by running it. A defaul
 Requires Node >= 24 (see [Compatibility](#compatibility) for why). The whole tool is one npm package, `workflow-lint` — the CLI, the MCP server (`workflow-lint-mcp`), the rule-author API and the n8n 2.38.3 node descriptions, so it works offline straight after install:
 
 ```bash
-npx workflow-lint lint path/to/workflow.json --n8n-version 2.38.3
+# a sample with several things wrong, or use a workflow export of your own
+curl -LO https://raw.githubusercontent.com/LudwigGerdes/workflow-lint/main/docs/demo/order-sync.json
+
+npx workflow-lint lint order-sync.json --n8n-version 2.38.3
 npm install --save-dev workflow-lint     # or pin it in a project
 ```
+
+Installed from npm, the command is `npx workflow-lint` wherever this README writes `workflow-lint` or `node packages/cli/dist/bin.js`.
 
 To work on the tool itself, build from a checkout (pnpm 10):
 
@@ -395,7 +400,7 @@ Installed n8n 2.36.8 node types to ~/.workflow-lint/node-types/2.36.8
 
 ### GitHub Action
 
-`action.yml` is a composite action. It builds from its own checkout (`pnpm install --frozen-lockfile && pnpm build`) before linting — expect the first step to take a minute; a later release will switch it to `npx workflow-lint@<version>` and skip the build. It defaults to `--format github-actions`, so findings arrive as annotations on the changed lines.
+`action.yml` is a composite action. It builds from its own checkout (`pnpm install --frozen-lockfile && pnpm build`) before linting — expect the first step to take a minute; a later release of the action will switch to `npx workflow-lint@<version>` and skip the build. It defaults to `--format github-actions`, so findings arrive as annotations on the changed lines.
 
 ```yaml
 - uses: LudwigGerdes/workflow-lint@main
@@ -466,6 +471,8 @@ git diff --cached --name-only -z --diff-filter=d -- '*.json' \
 git diff --cached --name-only -z --diff-filter=d -- '*.json' \
   | xargs -0 -r node packages/cli/dist/bin.js fmt --check --no-error-on-unmatched-pattern
 ```
+
+In a repository of your own, with `workflow-lint` installed as a devDependency, replace `node packages/cli/dist/bin.js` with `npx workflow-lint` in either recipe.
 
 ### MCP server
 
@@ -592,11 +599,11 @@ const { findings } = await lint({ text: readFileSync(path, 'utf8'), path }, conf
 - `n8n/typeversion-policy` reports "No n8n version is pinned" at `warn`, while its text says findings were "reported as information only"; the severity and the sentence disagree, and it fires at `1:1` of every file in an unpinned repo. Pin `settings.n8nVersion` to silence it.
 - The MCP `json` argument has no declared type in the tool schema (it accepts an object, and parses a string); the description says so but a strict client may not.
 - `workflow-lint <unknown-command>` is treated as a path to lint and reports `no such file or directory`, because a bare path routes to `lint`.
-- The GitHub Action builds the CLI from source on every run until an npm release exists; after that it switches to `npx workflow-lint@<version>`.
+- The GitHub Action still builds the CLI from source on every run; switching it to `npx workflow-lint@<version>` is planned.
 
 ## Status
 
-Feature-complete for a first release: 31 rules, safe and unsafe fixes, six reporters, baseline, `fmt`, pre-commit and GitHub Action recipes, MCP server, and a test suite that runs with the network namespace removed in CI. Not published to npm. Out of scope by design: running workflows, judging designs, and any rule that needs a live instance.
+Feature-complete for a first release: 31 rules, safe and unsafe fixes, six reporters, baseline, `fmt`, pre-commit and GitHub Action recipes, MCP server, and a test suite that runs with the network namespace removed in CI. Published to npm as `workflow-lint`. Out of scope by design: running workflows, judging designs, and any rule that needs a live instance.
 
 ## Support and maintenance
 
