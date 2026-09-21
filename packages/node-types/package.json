@@ -1,6 +1,6 @@
 {
   "name": "workflow-lint-node-types",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "description": "Bundled n8n node descriptions with offline version resolution and a structural diff",
   "keywords": [

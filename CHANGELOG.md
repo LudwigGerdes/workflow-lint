@@ -6,6 +6,8 @@ All notable changes to workflow-lint are recorded here. The format follows
 
 ## [Unreleased]
 
+## 0.1.1 — 2026-09-21
+
 ### Fixed
 
 - `n8n/typeversion-policy`: the note shown when no n8n version is pinned said version findings "were reported as information only". They are withheld; the message now says so, and names `--n8n-version`.

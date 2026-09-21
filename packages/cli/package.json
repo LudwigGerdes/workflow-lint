@@ -1,6 +1,6 @@
 {
   "name": "workflow-lint",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Semantic linter and layout formatter for n8n workflow JSON: CLI, MCP server and rule-author API in one package",
   "keywords": [
     "n8n",
