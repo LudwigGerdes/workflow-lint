@@ -31,4 +31,4 @@ Nodes should run a typeVersion the target n8n knows, close to current, and not d
 |---|---|
 | `outdated` | Node "{{name}}" uses typeVersion {{version}}; the current version is {{defaultVersion}}. |
 | `deprecated` | Node "{{name}}" uses deprecated typeVersion {{version}}. |
-| `unpinnedNote` | No n8n version is pinned, so version findings were reported as information only; set settings.n8nVersion to enforce them. |
+| `unpinnedNote` | No n8n version is pinned, so typeVersion findings were withheld; set settings.n8nVersion or pass --n8n-version to check them. |

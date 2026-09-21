@@ -115,9 +115,10 @@ node packages/cli/dist/bin.js fmt --check <path>
 node packages/cli/dist/bin.js node-types list
 ```
 
-The MCP server is `node packages/cli/dist/mcp.js` (`action.yml` and
-any pre-commit hook that runs the linter from a checkout depend on
-`packages/cli/dist/bin.js` existing — keep that path).
+The MCP server is `node packages/cli/dist/mcp.js`. Any pre-commit hook that
+runs the linter from a checkout depends on `packages/cli/dist/bin.js` existing
+— keep that path. `action.yml` does not: it runs the published package with
+`npx workflow-lint@<version>`, reading the version from `packages/cli/package.json`.
 The package is published to npm as `workflow-lint`; `pnpm smoke` proves every
 build is installable from its tarball before it is released.
 

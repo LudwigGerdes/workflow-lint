@@ -6,8 +6,17 @@ All notable changes to workflow-lint are recorded here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+
+- `n8n/typeversion-policy`: the note shown when no n8n version is pinned said version findings "were reported as information only". They are withheld; the message now says so, and names `--n8n-version`.
+- A mistyped command such as `workflow-lint lnt` reports `unknown command "lnt"` with the list of commands. It used to be treated as a path and answer `no such file or directory`.
+- MCP: the `json` argument of the three workflow tools is declared as an object or a string in the tool schema. It had no type, which a strict client could reject.
+
 ### Changed
 
+- The GitHub Action runs the published npm package (`npx workflow-lint@<version of the action's checkout>`). It no longer installs pnpm and builds from source.
+- The starter config written by `init` links to the rule reference online.
+- README cut down to description, installation, getting started and core usage; the reference moved to `docs/` (`cli.md`, `configuration.md`, `integrations.md`, `api.md`, `faq.md`).
 - README: the npm quickstart downloads a sample workflow so it runs as pasted, and says how npm users invoke the recipes. `pnpm demo` prints the exact commands it runs, `--n8n-version` included.
 
 ## 0.1.0 — 2026-09-20

@@ -252,7 +252,7 @@ clone_path() {
   WL=(node "$clone/packages/cli/dist/bin.js")
   MCP=(node "$clone/packages/cli/dist/mcp.js")
   N8N_EXPECT="$clone/node_modules"
-  check "the path action.yml runs exists" test -f "$clone/packages/cli/dist/bin.js"
+  check "the CLI a checkout-based hook runs exists" test -f "$clone/packages/cli/dist/bin.js"
   quickstart "$clone/packages" "$TMP/clone-work" "$clone/packages/cli"
 
   PATH_NAME="clone"

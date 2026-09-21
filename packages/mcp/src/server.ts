@@ -76,8 +76,9 @@ export const defaultRegistry = (): Map<string, Rule> =>
 
 /** The three workflow tools all accept the same three source shapes. */
 const sourceShape = {
+  // Declared as object-or-string so a strict client sees a type in the schema.
   json: z
-    .unknown()
+    .union([z.record(z.unknown()), z.string()])
     .optional()
     .describe('An inline workflow document, as a JSON object (a JSON string is parsed first)'),
   path: z.string().optional().describe('Path to a workflow JSON file, relative to cwd'),

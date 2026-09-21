@@ -21,24 +21,9 @@ inputs:
 runs:
   using: composite
   steps:
-    # Read the pnpm version from this action's own package.json, not the
-    # consumer's: a consumer that also declares packageManager would otherwise
-    # make pnpm/action-setup fail with "Multiple versions of pnpm specified".
-    - uses: pnpm/action-setup@v4
-      with:
-        package_json_file: ${{ github.action_path }}/package.json
     - uses: actions/setup-node@v4
       with:
         node-version: 24
-
-    # Builds from the action's own checkout. `pnpm build` bundles everything
-    # into packages/cli/dist (the one published package), which is what the
-    # last step runs; `pnpm smoke` asserts that path exists in a fresh clone.
-    # After the first real publish this can become a single step with no
-    # pnpm/build at all:  npx --yes workflow-lint@<version> "${args[@]}"
-    - shell: bash
-      working-directory: ${{ github.action_path }}
-      run: pnpm install --frozen-lockfile && pnpm build
 
     - shell: bash
       env:
@@ -59,4 +44,6 @@ runs:
         if [ -n "$INPUT_CONFIG" ]; then
           args+=(--config "$INPUT_CONFIG")
         fi
-        node "$GITHUB_ACTION_PATH/packages/cli/dist/bin.js" "${args[@]}"
+        # Run the published package at the version this checkout of the action declares.
+        version="$(node -p "require('$GITHUB_ACTION_PATH/packages/cli/package.json').version")"
+        npx --yes "workflow-lint@$version" "${args[@]}"

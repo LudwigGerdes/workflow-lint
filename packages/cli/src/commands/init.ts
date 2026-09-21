@@ -8,12 +8,12 @@ export const CONFIG_FILE = 'workflow-lint.config.yaml';
  * The generated config leans on comments rather than defaults, so the file
  * documents what can be set without changing behaviour until it is edited.
  */
-const TEMPLATE = `# workflow-lint configuration. Every rule is documented under docs/rules.
+const TEMPLATE = `# workflow-lint configuration. Rules: https://workflowtools.dev/workflow-lint/rules
 extends:
   - workflow-lint:recommended
 
 # Pin the n8n version to lint against. Without it, version-sensitive findings
-# are reported as information only, since the target instance is unknown.
+# are withheld, since the target instance is unknown.
 # settings:
 #   n8nVersion: 2.38.3
 
