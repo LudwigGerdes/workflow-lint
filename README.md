@@ -41,10 +41,44 @@ curl -LO https://raw.githubusercontent.com/LudwigGerdes/workflow-lint/main/docs/
 npx workflow-lint lint order-sync.json
 ```
 
-This reports eleven findings, each with its line, severity and rule. Then apply the safe fixes, which leaves seven:
+**Expected output:**
+
+```text
+order-sync.json
+  1:1   warn   n8n/typeversion-policy                           No n8n version is pinned, so typeVersion findings were withheld; set settings.n8nVersion or pass --n8n-version to check them.
+  4:5   info   reliability/webhook-input-contract               Webhook "Order Received" accepts its payload without checking it; validate the required fields and stop on bad input.
+  17:5  warn   naming/decision-node-question-mark               Decision node "Is Valid" should be phrased as a question ending in "?".
+  27:5  warn   hygiene/no-placeholder-api-url                   Node "HTTP Request" still points at the placeholder URL "https://api.example.com/orders".
+  27:5  warn   naming/external-node-name-format                 Node "HTTP Request" calls an external service; name it to match ^(GET|POST|PUT|PATCH|DELETE|UPSERT) .+ - .+$.
+  27:5  warn   naming/no-default-node-name                      Node "HTTP Request" still has its default name; rename it to describe what it does.
+  27:5  warn   reliability/http-retry-config                    Node "HTTP Request" calls out over the network but does not retry on failure.
+  27:5  warn   structure/branch-entry-pass-through              Branch 0 of "Is Valid" goes straight into "HTTP Request"; open it with a NoOp or a pass-through Set.
+  40:5  warn   naming/no-default-node-name                      Node "Edit Fields" still has its default name; rename it to describe what it does.
+  40:5  warn   structure/branch-entry-pass-through              Pass-through Set "Edit Fields" on branch 1 of "Is Valid" does not set includeOtherFields, so it drops the incoming data.
+  40:5  error  structure/set-pass-through-include-other-fields  Pass-through Set "Edit Fields" assigns nothing and does not set includeOtherFields, so it emits empty items.
+
+x 11 problems (1 error, 9 warnings, 1 info)  3 fixable with --fix
+```
+
+Apply the safe fixes:
 
 ```bash
 npx workflow-lint lint order-sync.json --fix
+```
+
+**Expected output:**
+
+```text
+order-sync.json
+  1:1   warn  n8n/typeversion-policy               No n8n version is pinned, so typeVersion findings were withheld; set settings.n8nVersion or pass --n8n-version to check them.
+  4:5   info  reliability/webhook-input-contract   Webhook "Order Received" accepts its payload without checking it; validate the required fields and stop on bad input.
+  27:5  warn  hygiene/no-placeholder-api-url       Node "HTTP Request" still points at the placeholder URL "https://api.example.com/orders".
+  27:5  warn  naming/external-node-name-format     Node "HTTP Request" calls an external service; name it to match ^(GET|POST|PUT|PATCH|DELETE|UPSERT) .+ - .+$.
+  27:5  warn  naming/no-default-node-name          Node "HTTP Request" still has its default name; rename it to describe what it does.
+  27:5  warn  structure/branch-entry-pass-through  Branch 0 of "Is Valid?" goes straight into "HTTP Request"; open it with a NoOp or a pass-through Set.
+  43:5  warn  naming/no-default-node-name          Node "Edit Fields" still has its default name; rename it to describe what it does.
+
+x 7 problems (0 errors, 6 warnings, 1 info)
 ```
 
 To use a workflow of your own, open it in n8n and choose **Download** from the `…` menu.
@@ -73,6 +107,12 @@ Write a config file, where you pin your n8n version and switch rules on or off:
 
 ```bash
 workflow-lint init
+```
+
+**Expected output:**
+
+```text
+Created workflow-lint.config.yaml
 ```
 
 Adopt it on an existing repository by accepting today's findings and failing only on new ones:

@@ -53,7 +53,7 @@ Set `settings.n8nVersion`, or pass `--n8n-version`.
 
 n8n workflows have no comments, so directives go in a node's **Notes** field. They can also be the first line of a sticky note, which then covers every node inside the sticky's bounds.
 
-```
+```text
 workflow-lint-disable naming/no-default-node-name -- renaming next sprint
 workflow-lint-disable naming, structure/merge-for-reconvergence
 workflow-lint-disable-file *

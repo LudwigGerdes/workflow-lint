@@ -41,7 +41,7 @@ const rule = {
 
 Filter by attribute with a string or a regular expression:
 
-```
+```text
 Node[type="n8n-nodes-base.if"]
 Node[type=/Trigger$/]
 ```
