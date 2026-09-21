@@ -3,7 +3,7 @@ import { parseWorkflow } from './parse.js';
 import type { Location } from './types.js';
 
 /**
- * Seam S5. The whole surface another tool may rely on for turning a node name
+ * The whole surface another tool may rely on for turning a node name
  * into a position in the file it came from.
  *
  * Deliberately one synchronous method returning `undefined` rather than

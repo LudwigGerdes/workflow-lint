@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { createSourceMapAdapter } from 'workflow-lint-core';
 
 /**
- * Seam S5 conformance — owner: workflow-lint.
+ * Conformance for the source-map API — owner: workflow-lint.
  *
  * Consumers copy this file verbatim and run it against the adapter they load
  * by dynamic import. The contract is narrow on purpose: one method, and

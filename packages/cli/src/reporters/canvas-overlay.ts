@@ -19,7 +19,7 @@ export interface CanvasOverlay {
 }
 
 /**
- * Seam S6, reserved.
+ * Reserved.
  *
  * workflow-render owns this format and does not render it yet; it is emitted now so
  * that when it does, nobody has invented a second shape in the meantime. The

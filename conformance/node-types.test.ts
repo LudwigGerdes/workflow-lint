@@ -8,7 +8,7 @@ import {
 } from 'workflow-lint-node-types';
 
 /**
- * Seam S1 conformance — owner: workflow-lint, package `workflow-lint-node-types`.
+ * Conformance for the node-types API — owner: workflow-lint, package `workflow-lint-node-types`.
  *
  * There are no consumers today. One that needs node descriptions again copies
  * this file verbatim and runs it against the version it resolves; a failure
