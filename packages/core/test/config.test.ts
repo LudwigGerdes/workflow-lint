@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, realpathSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { ConfigError, loadConfigFile, resolveConfig } from '../src/config.js';
+import { ConfigError, loadConfig, loadConfigFile, readConfig, resolveConfig } from '../src/config.js';
 import type { Rule } from '../src/types.js';
 
 const mkRule = (id: string, recommended: 'warn' | 'error' | false, schema?: unknown): Rule => ({
@@ -174,5 +174,216 @@ describe('presets', () => {
     expect(sev(c, 'reliability/webhook-input-contract')).toBe('warn');
     // everything else keeps its recommended level
     expect(sev(c, 'naming/no-default-node-name')).toBe('warn');
+  });
+});
+
+describe('config discovery', () => {
+  it('walks up from a subdirectory to the nearest config file', async () => {
+    const root = mkdtempSync(join(tmpdir(), 'workflow-lint-walk-'));
+    mkdirSync(join(root, 'flows', 'billing'), { recursive: true });
+    writeFileSync(join(root, 'workflow-lint.config.yaml'), 'settings:\n  n8nVersion: 2.10.0\n');
+    const { config, path } = await loadConfigFile(join(root, 'flows', 'billing'));
+    expect(path).toBe(join(root, 'workflow-lint.config.yaml'));
+    expect(config.settings?.n8nVersion).toBe('2.10.0');
+  });
+
+  it('the nearest file wins; a parent config is not merged in', async () => {
+    const root = mkdtempSync(join(tmpdir(), 'workflow-lint-walk-'));
+    mkdirSync(join(root, 'sub'));
+    writeFileSync(join(root, 'workflow-lint.config.yaml'), 'departments:\n  naming: off\n');
+    writeFileSync(join(root, 'sub', 'workflow-lint.config.json'), '{"rules":{"naming/other":"error"}}');
+    const { config, path } = await readConfig({ cwd: join(root, 'sub') });
+    expect(path).toBe(join(root, 'sub', 'workflow-lint.config.json'));
+    expect(config.departments).toBeUndefined();
+    expect(config.rules).toEqual({ 'naming/other': 'error' });
+  });
+});
+
+describe('readConfig', () => {
+  const setup = (): string => mkdtempSync(join(tmpdir(), 'workflow-lint-read-'));
+
+  it('defaults to the recommended preset when there is no file, or the file names no extends', async () => {
+    const dir = setup();
+    expect((await readConfig({ cwd: dir })).config.extends).toEqual(['workflow-lint:recommended']);
+    writeFileSync(join(dir, 'workflow-lint.config.yaml'), 'rules:\n  naming/other: error\n');
+    const { config } = await readConfig({ cwd: dir });
+    expect(config.extends).toEqual(['workflow-lint:recommended']);
+    expect(config.rules).toEqual({ 'naming/other': 'error' });
+  });
+
+  it('takes an explicit path, resolved against cwd', async () => {
+    const dir = setup();
+    mkdirSync(join(dir, 'ci'));
+    writeFileSync(join(dir, 'ci', 'strict.yaml'), 'extends: [workflow-lint:strict]\n');
+    const { config, path } = await readConfig({ cwd: dir, path: 'ci/strict.yaml' });
+    expect(path).toBe(join(dir, 'ci', 'strict.yaml'));
+    expect(config.extends).toEqual(['workflow-lint:strict']);
+  });
+
+  it('extends a local file, relative to the extending file, with the child layered on top', async () => {
+    const dir = setup();
+    mkdirSync(join(dir, 'shared'));
+    mkdirSync(join(dir, 'team'));
+    writeFileSync(
+      join(dir, 'shared', 'base.yaml'),
+      [
+        'extends: [workflow-lint:production]',
+        'settings: { n8nVersion: 2.10.0, extra: base }',
+        'departments: { naming: error }',
+        'rules: { naming/other: warn, layout/formatted: warn }',
+        'fix: { naming/other: false }',
+        'ignore: ["**/*.generated.json"]',
+        'overrides: [{ files: ["legacy/**"], departments: { naming: off } }]',
+        'plugins: [./plugin-a.mjs]',
+      ].join('\n'),
+    );
+    writeFileSync(
+      join(dir, 'team', 'workflow-lint.config.yaml'),
+      [
+        'extends: [../shared/base.yaml, workflow-lint:strict]',
+        'settings: { n8nVersion: 2.38.3 }',
+        'rules: { naming/other: off }',
+        'ignore: ["tmp/**"]',
+        'overrides: [{ files: ["exp/**"], rules: { naming/other: off } }]',
+        'plugins: [./plugin-b.mjs]',
+      ].join('\n'),
+    );
+    const { config } = await readConfig({ cwd: join(dir, 'team') });
+    // Preset names keep their order: the base's first, then the child's.
+    expect(config.extends).toEqual(['workflow-lint:production', 'workflow-lint:strict']);
+    expect(config.settings).toEqual({ n8nVersion: '2.38.3', extra: 'base' });
+    expect(config.departments).toEqual({ naming: 'error' });
+    expect(config.rules).toEqual({ 'naming/other': 'off', 'layout/formatted': 'warn' });
+    expect(config.fix).toEqual({ 'naming/other': false });
+    expect(config.ignore).toEqual(['**/*.generated.json', 'tmp/**']);
+    expect(config.overrides?.map((o) => o.files)).toEqual([['legacy/**'], ['exp/**']]);
+    // Plugin specifiers are resolved to absolute paths so they load from the right place.
+    expect(config.plugins).toEqual([join(dir, 'shared', 'plugin-a.mjs'), join(dir, 'team', 'plugin-b.mjs')]);
+  });
+
+  it('extends an npm package: a module exporting a config, or a package whose main is a yaml file', async () => {
+    const dir = setup();
+    const mods = join(dir, 'node_modules');
+    mkdirSync(join(mods, 'workflow-lint-config-acme'), { recursive: true });
+    writeFileSync(
+      join(mods, 'workflow-lint-config-acme', 'package.json'),
+      '{"name":"workflow-lint-config-acme","type":"module","main":"index.js"}',
+    );
+    writeFileSync(
+      join(mods, 'workflow-lint-config-acme', 'index.js'),
+      'export default { departments: { naming: "error" }, plugins: ["./plugin.mjs"] };',
+    );
+    writeFileSync(join(mods, 'workflow-lint-config-acme', 'plugin.mjs'), 'export const rules = [];');
+    mkdirSync(join(mods, 'acme-yaml'));
+    writeFileSync(join(mods, 'acme-yaml', 'package.json'), '{"name":"acme-yaml","main":"config.yaml"}');
+    writeFileSync(join(mods, 'acme-yaml', 'config.yaml'), 'rules: { naming/other: warn }\n');
+    writeFileSync(
+      join(dir, 'workflow-lint.config.yaml'),
+      'extends: [workflow-lint-config-acme, acme-yaml]\n',
+    );
+    const { config } = await readConfig({ cwd: dir });
+    expect(config.departments).toEqual({ naming: 'error' });
+    expect(config.rules).toEqual({ 'naming/other': 'warn' });
+    // require.resolve reports the real path (macOS: /var -> /private/var).
+    expect(config.plugins?.map((p) => realpathSync(p))).toEqual([
+      realpathSync(join(mods, 'workflow-lint-config-acme', 'plugin.mjs')),
+    ]);
+  });
+
+  it('names an extends entry it cannot find', async () => {
+    const dir = setup();
+    writeFileSync(join(dir, 'workflow-lint.config.yaml'), 'extends: [./missing.yaml]\n');
+    await expect(readConfig({ cwd: dir })).rejects.toThrow(/missing\.yaml/);
+    writeFileSync(join(dir, 'workflow-lint.config.yaml'), 'extends: [no-such-package-xyz]\n');
+    await expect(readConfig({ cwd: dir })).rejects.toThrow(/no-such-package-xyz/);
+  });
+
+  it('refuses a cycle', async () => {
+    const dir = setup();
+    writeFileSync(join(dir, 'a.yaml'), 'extends: [./b.yaml]\n');
+    writeFileSync(join(dir, 'b.yaml'), 'extends: [./a.yaml]\n');
+    await expect(readConfig({ cwd: dir, path: 'a.yaml' })).rejects.toThrow(/cycle|circular/i);
+  });
+});
+
+describe('loadConfig', () => {
+  const PLUGIN = `
+export const rules = [
+  {
+    meta: { id: 'acme/no-http', type: 'problem', fixable: null, docs: { description: 'x', recommended: 'error' }, messages: {} },
+    create: () => ({}),
+  },
+];
+export const presets = {
+  'acme:paranoid': (registry) => ({ rules: { 'acme/no-http': 'error', 'naming/other': 'error' } }),
+};
+`;
+
+  const setup = (): string => mkdtempSync(join(tmpdir(), 'workflow-lint-load-'));
+  const builtin = [...registry.values()];
+
+  it('adds plugin rules to the registry so the config can name them', async () => {
+    const dir = setup();
+    writeFileSync(join(dir, 'acme.mjs'), PLUGIN);
+    writeFileSync(join(dir, 'workflow-lint.config.yaml'), 'plugins: [./acme.mjs]\nrules:\n  acme/no-http: warn\n');
+    const loaded = await loadConfig({ cwd: dir, rules: builtin });
+    expect(loaded.registry.has('acme/no-http')).toBe(true);
+    expect(loaded.registry.has('naming/other')).toBe(true);
+    const resolved = resolveConfig(loaded.config, loaded.registry, undefined, loaded.presets);
+    expect(sev(resolved, 'acme/no-http')).toBe('warn');
+  });
+
+  it('a plugin preset is usable from extends', async () => {
+    const dir = setup();
+    writeFileSync(join(dir, 'acme.mjs'), PLUGIN);
+    writeFileSync(join(dir, 'workflow-lint.config.yaml'), 'plugins: [./acme.mjs]\nextends: [acme:paranoid]\n');
+    const loaded = await loadConfig({ cwd: dir, rules: builtin });
+    const resolved = resolveConfig(loaded.config, loaded.registry, undefined, loaded.presets);
+    expect(sev(resolved, 'acme/no-http')).toBe('error');
+    expect(sev(resolved, 'naming/other')).toBe('error');
+    // Naming a plugin preset without loading the plugin is the error it always was.
+    await expect(
+      loadConfig({ cwd: dir, rules: builtin }).then((l) => resolveConfig({ extends: ['acme:nope'] }, l.registry, undefined, l.presets)),
+    ).rejects.toThrow(/unknown preset/);
+  });
+
+  it('loads a plugin from node_modules by package name', async () => {
+    const dir = setup();
+    mkdirSync(join(dir, 'node_modules', 'workflow-lint-plugin-acme'), { recursive: true });
+    writeFileSync(
+      join(dir, 'node_modules', 'workflow-lint-plugin-acme', 'package.json'),
+      '{"name":"workflow-lint-plugin-acme","type":"module","main":"index.js"}',
+    );
+    writeFileSync(join(dir, 'node_modules', 'workflow-lint-plugin-acme', 'index.js'), PLUGIN);
+    writeFileSync(join(dir, 'workflow-lint.config.yaml'), 'plugins: [workflow-lint-plugin-acme]\n');
+    const loaded = await loadConfig({ cwd: dir, rules: builtin });
+    expect(loaded.registry.has('acme/no-http')).toBe(true);
+  });
+
+  it('rejects a plugin that exports no rules, a duplicate rule id, and one it cannot find', async () => {
+    const dir = setup();
+    writeFileSync(join(dir, 'empty.mjs'), 'export const hello = 1;');
+    writeFileSync(join(dir, 'workflow-lint.config.yaml'), 'plugins: [./empty.mjs]\n');
+    await expect(loadConfig({ cwd: dir, rules: builtin })).rejects.toThrow(/empty\.mjs.*rules/s);
+
+    writeFileSync(
+      join(dir, 'dup.mjs'),
+      `export const rules = [{ meta: { id: 'naming/other', type: 'suggestion', fixable: null, docs: { description: 'x', recommended: 'warn' }, messages: {} }, create: () => ({}) }];`,
+    );
+    writeFileSync(join(dir, 'workflow-lint.config.yaml'), 'plugins: [./dup.mjs]\n');
+    await expect(loadConfig({ cwd: dir, rules: builtin })).rejects.toThrow(/naming\/other.*already/s);
+
+    writeFileSync(join(dir, 'workflow-lint.config.yaml'), 'plugins: [./nope.mjs]\n');
+    await expect(loadConfig({ cwd: dir, rules: builtin })).rejects.toThrow(/nope\.mjs/);
+  });
+
+  it('a plugin listed twice is loaded once', async () => {
+    const dir = setup();
+    writeFileSync(join(dir, 'acme.mjs'), PLUGIN);
+    writeFileSync(join(dir, 'base.yaml'), 'plugins: [./acme.mjs]\n');
+    writeFileSync(join(dir, 'workflow-lint.config.yaml'), 'extends: [./base.yaml]\nplugins: [./acme.mjs]\n');
+    const loaded = await loadConfig({ cwd: dir, rules: builtin });
+    expect(loaded.config.plugins).toEqual([join(dir, 'acme.mjs')]);
+    expect(loaded.registry.has('acme/no-http')).toBe(true);
   });
 });

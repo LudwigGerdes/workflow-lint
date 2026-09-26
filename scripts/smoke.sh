@@ -406,6 +406,20 @@ JS
   run 0 "…and shares one module instance with the CLI" "single-instance=ok" -- \
     node "$app/plugin/lint.mjs" "$TMP/npm-work/order-sync.json"
 
+  # The same rule through the config file: plugins load in the CLI proper.
+  mkdir -p "$TMP/npm-plugged"
+  cp "$TMP/npm-work/order-sync.json" "$TMP/npm-plugged/order-sync.json"
+  cat >"$TMP/npm-plugged/acme-plugin.mjs" <<'JS'
+import { rule } from '../app/plugin/rule.mjs';
+export const rules = [rule];
+JS
+  printf 'plugins: [./acme-plugin.mjs]\nsettings: { n8nVersion: 2.38.3 }\n' >"$TMP/npm-plugged/workflow-lint.config.yaml"
+  run 1 "a plugin named in the config file lints through the CLI" \
+    'acme/no-http-request' -- \
+    sh -c 'cd "$1" && shift && "$@"' _ "$TMP/npm-plugged" "${WL[@]}" lint order-sync.json --rule acme/no-http-request
+  run 0 "…and rules lists it" 'acme/no-http-request' -- \
+    sh -c 'cd "$1" && shift && "$@"' _ "$TMP/npm-plugged" "${WL[@]}" rules
+
   # Types: the subpath exports must type-check for a consumer, and
   # workflow-lint/rule-tester must run under the consumer's vitest.
   log="$TMP/npm-dev.log"

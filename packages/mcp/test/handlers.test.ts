@@ -1,4 +1,7 @@
 import { describe, it, expect } from 'vitest';
+import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { rules as n8nRules } from 'workflow-lint-plugin-n8n';
 import { rules as standardsRules } from 'workflow-lint-plugin-standards';
 import type { Rule } from 'workflow-lint-core';
@@ -44,29 +47,29 @@ const workflow = {
 };
 
 describe('list_rules', () => {
-  it('lists every registered rule', () => {
-    const { rules } = listRules(deps);
+  it('lists every registered rule', async () => {
+    const { rules } = await listRules(deps);
     expect(rules.length).toBe(registry.size);
     expect(rules.some((r) => r.id === 'naming/no-default-node-name')).toBe(true);
   });
 
-  it('reports each rule’s level and fixability', () => {
-    const rule = listRules(deps).rules.find((r) => r.id === 'naming/decision-node-question-mark')!;
+  it('reports each rule’s level and fixability', async () => {
+    const rule = (await listRules(deps)).rules.find((r) => r.id === 'naming/decision-node-question-mark')!;
     expect(rule.recommended).toBe('warn');
     expect(rule.fixable).toBe('connections');
   });
 });
 
 describe('explain_rule', () => {
-  it('renders the rule page from metadata', () => {
-    const out = explainRule(deps, { ruleId: 'naming/no-default-node-name' });
+  it('renders the rule page from metadata', async () => {
+    const out = await explainRule(deps, { ruleId: 'naming/no-default-node-name' });
     expect(out.ruleId).toBe('naming/no-default-node-name');
     expect(out.markdown).toContain('# naming/no-default-node-name');
     expect(out.markdown).toContain('Recommended');
   });
 
-  it('rejects an unknown rule', () => {
-    expect(() => explainRule(deps, { ruleId: 'nope/nope' })).toThrow(/unknown rule/i);
+  it('rejects an unknown rule', async () => {
+    await expect(explainRule(deps, { ruleId: 'nope/nope' })).rejects.toThrow(/unknown rule/i);
   });
 });
 
@@ -152,5 +155,45 @@ describe('format_workflow', () => {
     const twice = await formatWorkflow(deps, { json: once.json });
     expect(twice.changed).toBe(false);
     expect(twice.moved).toBe(0);
+  });
+});
+
+describe('the config file', () => {
+  const setup = (): string => mkdtempSync(join(tmpdir(), 'workflow-lint-mcp-cfg-'));
+
+  it('is read from cwd, so a rule turned off there is off here too', async () => {
+    const cwd = setup();
+    const before = await lintWorkflow({ ...deps, cwd }, { json: workflow });
+    expect(before.findings.some((f) => f.ruleId === 'naming/no-default-node-name')).toBe(true);
+    writeFileSync(join(cwd, 'workflow-lint.config.yaml'), 'rules:\n  naming/no-default-node-name: off\n');
+    const after = await lintWorkflow({ ...deps, cwd }, { json: workflow });
+    expect(after.findings.some((f) => f.ruleId === 'naming/no-default-node-name')).toBe(false);
+  });
+
+  it('brings its plugins into list_rules, explain_rule and lint', async () => {
+    const cwd = setup();
+    writeFileSync(
+      join(cwd, 'acme.mjs'),
+      `export const rules = [{
+        meta: { id: 'acme/no-set-node', type: 'problem', class: 'quality', fixable: null,
+          docs: { description: 'Acme forbids Edit Fields nodes.', recommended: 'error' },
+          messages: { found: 'no' }, schema: [] },
+        create: (ctx) => ({ 'Node[type="n8n-nodes-base.set"]': (node) => ctx.report({ node, messageId: 'found' }) }),
+      }];`,
+    );
+    writeFileSync(join(cwd, 'workflow-lint.config.yaml'), 'plugins: [./acme.mjs]\n');
+    const local = { ...deps, cwd };
+    expect((await listRules(local)).rules.some((r) => r.id === 'acme/no-set-node')).toBe(true);
+    expect((await explainRule(local, { ruleId: 'acme/no-set-node' })).markdown).toContain('acme/no-set-node');
+    const result = await lintWorkflow(local, { json: workflow });
+    expect(result.findings.some((f) => f.ruleId === 'acme/no-set-node')).toBe(true);
+  });
+
+  it('honours an explicit configPath', async () => {
+    const cwd = setup();
+    mkdirSync(join(cwd, 'ci'));
+    writeFileSync(join(cwd, 'ci', 'lint.yaml'), 'rules:\n  naming/no-default-node-name: off\n');
+    const result = await lintWorkflow({ ...deps, cwd, configPath: 'ci/lint.yaml' }, { json: workflow });
+    expect(result.findings.some((f) => f.ruleId === 'naming/no-default-node-name')).toBe(false);
   });
 });

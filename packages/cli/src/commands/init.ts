@@ -11,6 +11,12 @@ export const CONFIG_FILE = 'workflow-lint.config.yaml';
 const TEMPLATE = `# workflow-lint configuration. Rules: https://workflowtools.dev/workflow-lint/rules
 extends:
   - workflow-lint:recommended
+# Also a local file (./shared/base.yaml) or an npm package (@acme/workflow-lint-config).
+
+# Rules of your own: a local module or an npm package exporting \`rules\`.
+# See https://workflowtools.dev/workflow-lint/api
+# plugins:
+#   - ./tools/lint-rules/index.mjs
 
 # Pin the n8n version to lint against. Without it, version-sensitive findings
 # are withheld, since the target instance is unknown.

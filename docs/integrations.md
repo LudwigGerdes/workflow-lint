@@ -74,6 +74,8 @@ git diff --cached --name-only -z --diff-filter=d -- '*.json' \
 }
 ```
 
+The server reads the nearest `workflow-lint.config.yaml` from its working directory on every call, plugins included, so it enforces what the CLI enforces. `WORKFLOW_LINT_CONFIG` names a config file instead.
+
 ### Tools
 
 | Tool | Returns |

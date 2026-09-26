@@ -1,5 +1,6 @@
 import {
   lint,
+  loadConfig,
   renderRuleDoc,
   resolveConfig,
   type Finding,
@@ -11,19 +12,32 @@ import { formatText } from 'workflow-lint-fmt';
 import { resolveSource, type SourceDeps, type WorkflowSource } from './source.js';
 
 export interface HandlerDeps extends SourceDeps {
+  /** The built-in rules. The config's plugins add to them. */
   registry: Map<string, Rule>;
   /** Pinned version to lint against; unpinned, version findings are advisory. */
   n8nVersion?: string;
+  /** An explicit config file, relative to cwd; otherwise the nearest one is read. */
+  configPath?: string;
 }
 
-const configFor = (deps: HandlerDeps) =>
-  resolveConfig(
-    {
-      extends: ['workflow-lint:recommended'],
-      ...(deps.n8nVersion !== undefined ? { settings: { n8nVersion: deps.n8nVersion } } : {}),
-    },
-    deps.registry,
-  );
+/**
+ * The same config the CLI would use from this cwd, read on every call so an
+ * edit to the file is seen without restarting the server.
+ */
+const loadFor = (deps: HandlerDeps) =>
+  loadConfig({
+    cwd: deps.cwd,
+    ...(deps.configPath !== undefined ? { path: deps.configPath } : {}),
+    rules: [...deps.registry.values()],
+  });
+
+const configFor = async (deps: HandlerDeps) => {
+  const { config, registry, presets } = await loadFor(deps);
+  if (deps.n8nVersion !== undefined) {
+    config.settings = { ...config.settings, n8nVersion: deps.n8nVersion };
+  }
+  return resolveConfig(config, registry, undefined, presets);
+};
 
 export interface Summary {
   errors: number;
@@ -51,8 +65,9 @@ export interface RuleSummary {
 }
 
 /** Every rule this server enforces, so an agent can see the vocabulary. */
-export function listRules(deps: HandlerDeps): { rules: RuleSummary[] } {
-  const rules = [...deps.registry.values()]
+export async function listRules(deps: HandlerDeps): Promise<{ rules: RuleSummary[] }> {
+  const { registry } = await loadFor(deps);
+  const rules = [...registry.values()]
     .sort((a, b) => a.meta.id.localeCompare(b.meta.id))
     .map((rule) => ({
       id: rule.meta.id,
@@ -65,11 +80,12 @@ export function listRules(deps: HandlerDeps): { rules: RuleSummary[] } {
 }
 
 /** The generated reference page for one rule, from its metadata. */
-export function explainRule(
+export async function explainRule(
   deps: HandlerDeps,
   input: { ruleId: string },
-): { ruleId: string; markdown: string } {
-  const rule = deps.registry.get(input.ruleId);
+): Promise<{ ruleId: string; markdown: string }> {
+  const { registry } = await loadFor(deps);
+  const rule = registry.get(input.ruleId);
   if (!rule) throw new Error(`unknown rule "${input.ruleId}"`);
   return { ruleId: rule.meta.id, markdown: renderRuleDoc(rule) };
 }
@@ -85,7 +101,7 @@ export async function lintWorkflow(
   input: WorkflowSource,
 ): Promise<LintResultPayload> {
   const { text, path } = await resolveSource(deps, input);
-  const result = await lint({ text, path }, configFor(deps));
+  const result = await lint({ text, path }, await configFor(deps));
   // A document that will not parse is an error result, never a clean summary:
   // an agent reads `summary.errors: 0` as "passing" and stops looking.
   if (result.parseErrors.length > 0) {
@@ -103,7 +119,7 @@ export async function fixWorkflow(
   input: WorkflowSource & { unsafe?: boolean },
 ): Promise<{ path: string; json: WorkflowJson; changed: boolean; remaining: Finding[] }> {
   const { text, path } = await resolveSource(deps, input);
-  const result = await lint({ text, path }, configFor(deps), {
+  const result = await lint({ text, path }, await configFor(deps), {
     fix: true,
     ...(input.unsafe ? { fixUnsafe: true } : {}),
   });

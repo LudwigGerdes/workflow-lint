@@ -48,7 +48,24 @@ Node[type=/Trigger$/]
 
 ## Running it
 
-The CLI does not load third-party rules from the config file yet. Run them through the API:
+Export the rule from a module and name the module in the config's `plugins`. The CLI, the Action and the MCP server pick it up; `workflow-lint rules` lists it.
+
+```js
+// lint-rules/index.mjs
+export const rules = [rule];
+```
+
+```yaml
+# workflow-lint.config.yaml
+plugins:
+  - ./lint-rules/index.mjs
+rules:
+  acme/no-http-request: error
+```
+
+Publish the module to npm and `plugins: ["@acme/workflow-lint-plugin"]` loads it the same way. A plugin may also export `presets`; see [Configuration](https://workflowtools.dev/workflow-lint/configuration#plugins).
+
+To run a rule without the CLI, through the API:
 
 ```js
 import { readFileSync } from 'node:fs';

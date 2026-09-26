@@ -5,7 +5,7 @@
 | `workflow-lint lint [paths...]` | Lint workflow JSON files. Defaults to `.`; `-` reads stdin |
 | `workflow-lint fmt [paths...]` | Format the canvas layout |
 | `workflow-lint init` | Write a starter `workflow-lint.config.yaml` |
-| `workflow-lint rules [--json]` | List every rule |
+| `workflow-lint rules [--json] [--config <path>]` | List every rule, plugins included |
 | `workflow-lint node-types list [--json]` | List bundled and installed n8n versions |
 | `workflow-lint node-types install <version>` | Install the node descriptions of another n8n version |
 | `workflow-lint node-types diff <a> <b>` | Compare two installed n8n versions |

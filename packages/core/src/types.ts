@@ -218,7 +218,21 @@ export type IgnoreEntry = string | { path: string; reason?: string };
 
 /** A user-authored configuration, from `workflow-lint.config.yaml` or a preset. */
 export interface UserConfig {
+  /**
+   * Presets (`workflow-lint:recommended`, or one a plugin exports), local
+   * files (`./base.yaml`, resolved against this file) and npm packages
+   * (`@acme/workflow-lint-config`, a module exporting a config or a package
+   * whose `main` is a YAML file). Applied in order; this file's own settings
+   * come last.
+   */
   extends?: string[];
+  /**
+   * Rule plugins: a local module (`./rules/index.mjs`, resolved against this
+   * file) or an npm package, exporting `rules: Rule[]` and optionally
+   * `presets`. Their rules become available to `rules` and `departments`
+   * under their own ids.
+   */
+  plugins?: string[];
   settings?: ResolvedSettings;
   /**
    * Gitignore-syntax patterns for files never to lint. A directory scan skips
@@ -252,5 +266,4 @@ export interface UserConfig {
     departments?: Record<string, Severity>;
     fix?: Record<string, boolean>;
   }>;
-  plugins?: string[];
 }

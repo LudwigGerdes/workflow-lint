@@ -67,6 +67,8 @@ export interface ServerOptions {
   registry?: Map<string, Rule>;
   cwd?: string;
   n8nVersion?: string;
+  /** Config file to read instead of the nearest one, relative to cwd. */
+  configPath?: string;
   /** Set only when the server is configured for instance access. */
   fetchWorkflow?: (instance: string, workflowId: string) => Promise<string>;
 }
@@ -92,6 +94,7 @@ export function createServer(options: ServerOptions = {}): McpServer {
     cwd: options.cwd ?? process.cwd(),
     readFile: (path) => readFile(path, 'utf8'),
     ...(options.n8nVersion !== undefined ? { n8nVersion: options.n8nVersion } : {}),
+    ...(options.configPath !== undefined ? { configPath: options.configPath } : {}),
     ...(options.fetchWorkflow ? { fetchWorkflow: options.fetchWorkflow } : {}),
   };
 

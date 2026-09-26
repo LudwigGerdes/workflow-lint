@@ -15,6 +15,7 @@ import {
   type NodeTypesInstallOptions,
   type NodeTypesListOptions,
 } from './commands/node-types.js';
+import { ConfigError } from 'workflow-lint-core';
 import { UsageError } from './files.js';
 
 export interface CliDeps {
@@ -96,7 +97,7 @@ export function buildProgram(deps: CliDeps = {}): Command {
       try {
         setExitCode(await runLint(paths, options, { write, writeErr, cwd, readStdin }));
       } catch (error) {
-        if (error instanceof UsageError) {
+        if (error instanceof UsageError || error instanceof ConfigError) {
           if (options.logLevel !== 'silent') writeErr(`workflow-lint: ${error.message}\n`);
           setExitCode(2);
           return;
@@ -122,7 +123,7 @@ export function buildProgram(deps: CliDeps = {}): Command {
       try {
         setExitCode(await runFmt(paths, options, { write, writeErr, cwd, readStdin }));
       } catch (error) {
-        if (error instanceof UsageError) {
+        if (error instanceof UsageError || error instanceof ConfigError) {
           if (options.logLevel !== 'silent') writeErr(`workflow-lint: ${error.message}\n`);
           setExitCode(2);
           return;
@@ -230,10 +231,20 @@ export function buildProgram(deps: CliDeps = {}): Command {
     .command('rules')
     .description('List every available rule')
     .option('--json', 'output as JSON')
+    .option('-c, --config <path>', 'config file whose plugins to include')
     .exitOverride()
     .configureOutput({ writeOut: write, writeErr })
-    .action((options: { json?: boolean }) => {
-      setExitCode(runRules(options, { write }));
+    .action(async (options: { json?: boolean; config?: string }) => {
+      try {
+        setExitCode(await runRules(options, { write, cwd }));
+      } catch (error) {
+        if (error instanceof ConfigError) {
+          writeErr(`workflow-lint: ${error.message}\n`);
+          setExitCode(2);
+          return;
+        }
+        throw error;
+      }
     });
 
   return program;

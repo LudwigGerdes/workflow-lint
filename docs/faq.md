@@ -64,4 +64,3 @@ workflow-lint parses workflows with n8n's own `n8n-workflow` package. That packa
 ## Limitations
 
 - Every finding of a rule has that rule's severity. A rule cannot report one finding as `info` and another as `warn`.
-- The CLI cannot load third-party rules from the config file. Run them through the [API](https://workflowtools.dev/workflow-lint/api).

@@ -2,6 +2,8 @@
 
 `workflow-lint init` writes `workflow-lint.config.yaml` with every block commented. Without a config file, `lint` uses the `workflow-lint:recommended` preset.
 
+The config is found the way `.gitignore` is: the nearest `workflow-lint.config.yaml`, `.yml` or `.json` at or above the working directory. Run the linter from `flows/billing/` and it uses the repo's config. The nearest file wins; a parent's is not merged in. `--config <path>` names a file instead. The CLI, `fmt`, the GitHub Action and the MCP server all read the same file the same way.
+
 ```yaml
 extends:
   - workflow-lint:recommended
@@ -33,6 +35,53 @@ overrides:
 ```
 
 An explicit rule setting beats its department's setting. Overrides apply last.
+
+## Sharing a config
+
+`extends` takes presets, local files and npm packages, in any mix. Each entry is applied in order and the file's own settings come last.
+
+```yaml
+extends:
+  - ../shared/workflow-lint.base.yaml   # relative to this file
+  - "@acme/workflow-lint-config"        # an npm package
+  - workflow-lint:production            # a preset
+```
+
+A shareable package is a module whose default export is a config object, or a package whose `main` is a YAML file:
+
+```js
+// @acme/workflow-lint-config/index.js
+export default {
+  plugins: ['@acme/workflow-lint-plugin'],
+  departments: { hygiene: 'error' },
+};
+```
+
+Maps (`settings`, `departments`, `rules`, `fix`) merge key by key; lists (`ignore`, `overrides`, `plugins`) append. Relative paths inside an extended file resolve against that file.
+
+## Plugins
+
+`plugins` loads rules written against the [API](https://workflowtools.dev/workflow-lint/api). An entry is a local module, resolved against the config file, or an npm package. Its rules become available under their own ids.
+
+```yaml
+plugins:
+  - ./tools/lint-rules/index.mjs
+  - "@acme/workflow-lint-plugin"
+
+rules:
+  acme/no-http-request: error
+```
+
+A plugin module exports `rules` and, optionally, `presets`:
+
+```js
+export const rules = [noHttpRequest, approvedCredentialsOnly];
+export const presets = {
+  'acme:strict': (registry) => ({ rules: { 'acme/no-http-request': 'error' } }),
+};
+```
+
+`extends: [acme:strict]` then works like a built-in preset, and `workflow-lint rules` lists the plugin's rules with the rest. A rule id that is already registered is an error, not an override.
 
 ## Presets
 

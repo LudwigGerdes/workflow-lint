@@ -1,14 +1,13 @@
 import { existsSync } from 'node:fs';
 import { readFile, writeFile } from 'node:fs/promises';
 import { relative, resolve } from 'node:path';
-import { parse as parseYaml } from 'yaml';
 import {
   BASELINE_FILE,
   buildIgnore,
   generateBaseline,
   isAutofixable,
   lint,
-  loadConfigFile,
+  loadConfig,
   parseBaseline,
   resolveConfig,
   serializeBaseline,
@@ -18,7 +17,7 @@ import {
   type ReportedSeverity,
   type RuleClass,
   type Rule,
-  type UserConfig,
+  type LoadedConfig,
 } from 'workflow-lint-core';
 import { resolveVersion } from 'workflow-lint-node-types';
 import { rules as n8nRules } from 'workflow-lint-plugin-n8n';
@@ -85,33 +84,26 @@ const RULE_CLASSES = ['stylistic', 'quality'] as const;
 const STDIN = '<stdin>';
 const CHUNK = 8;
 
+/** The rules that ship in the package. Plugins named in the config add to these. */
+export const builtinRules = (): Rule[] => [...n8nRules, ...standardsRules];
+
 export const buildRegistry = (): Map<string, Rule> =>
-  new Map([...n8nRules, ...standardsRules].map((r) => [r.meta.id, r]));
+  new Map(builtinRules().map((r) => [r.meta.id, r]));
 
-async function readUserConfig(
-  options: LintCommandOptions,
-  cwd: string,
-): Promise<{ config: UserConfig; path?: string }> {
-  let base: UserConfig;
-  let path: string | undefined;
-  if (options.config) {
-    path = resolve(cwd, options.config);
-    base = (parseYaml(await readFile(path, 'utf8')) ?? {}) as UserConfig;
-  } else {
-    const found = await loadConfigFile(cwd);
-    base = found.config;
-    path = found.path;
-  }
-
-  const withDefaults: UserConfig = {
-    ...base,
-    // Without a config file, lint against the recommended preset.
-    extends: base.extends ?? ['workflow-lint:recommended'],
-  };
+/**
+ * The config file (nearest, or `--config`), its `extends` chain and its
+ * plugins, with `--n8n-version` laid over the top.
+ */
+export async function readUserConfig(options: { config?: string; n8nVersion?: string }, cwd: string): Promise<LoadedConfig> {
+  const loaded = await loadConfig({
+    cwd,
+    ...(options.config ? { path: options.config } : {}),
+    rules: builtinRules(),
+  });
   if (options.n8nVersion) {
-    withDefaults.settings = { ...withDefaults.settings, n8nVersion: options.n8nVersion };
+    loaded.config.settings = { ...loaded.config.settings, n8nVersion: options.n8nVersion };
   }
-  return { config: withDefaults, ...(path !== undefined ? { path } : {}) };
+  return loaded;
 }
 
 /** Run the lint command and return the process exit code. */
@@ -122,7 +114,6 @@ export async function runLint(
 ): Promise<number> {
   const { cwd } = deps;
   const started = Date.now();
-  const registry = buildRegistry();
 
   const level = options.logLevel ?? DEFAULT_LOG_LEVEL;
   if (!isLogLevel(level)) {
@@ -140,10 +131,6 @@ export async function runLint(
   if (!(options.failOn in SEVERITY_RANK)) {
     throw new UsageError(`unknown --fail-on "${options.failOn}"; expected info, warn or error`);
   }
-  for (const id of options.rule) {
-    if (!registry.has(id)) throw new UsageError(`unknown rule "${id}"`);
-  }
-
   if (
     options.class !== undefined &&
     !RULE_CLASSES.includes(options.class as (typeof RULE_CLASSES)[number])
@@ -165,7 +152,10 @@ export async function runLint(
     }
   }
 
-  const { config: userConfig, path: configPath } = await readUserConfig(options, cwd);
+  const { config: userConfig, path: configPath, registry, presets } = await readUserConfig(options, cwd);
+  for (const id of options.rule) {
+    if (!registry.has(id)) throw new UsageError(`unknown rule "${id}"`);
+  }
   log.debug(
     `workflow-lint: config ${configPath ? relative(cwd, configPath) || configPath : '(none; using workflow-lint:recommended)'}\n`,
   );
@@ -234,11 +224,16 @@ export async function runLint(
     // reported, so `workflow-lint lint thing.json` never passes having checked nothing.
     if (!info.isWorkflow) return target.explicit ? notAWorkflow(target.path) : undefined;
 
-    const resolved = resolveConfig(userConfig, registry, {
-      path: target.path,
-      ...(info.tags ? { tags: info.tags } : {}),
-      ...(info.name ? { name: info.name } : {}),
-    });
+    const resolved = resolveConfig(
+      userConfig,
+      registry,
+      {
+        path: target.path,
+        ...(info.tags ? { tags: info.tags } : {}),
+        ...(info.name ? { name: info.name } : {}),
+      },
+      presets,
+    );
     if (options.rule.length > 0) {
       for (const id of [...resolved.rules.keys()]) {
         if (!options.rule.includes(id)) resolved.rules.delete(id);

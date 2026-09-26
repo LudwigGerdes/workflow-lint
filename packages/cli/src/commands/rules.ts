@@ -1,8 +1,9 @@
 import type { Rule } from 'workflow-lint-core';
-import { buildRegistry } from './lint.js';
+import { readUserConfig } from './lint.js';
 
 export interface RulesDeps {
   write: (text: string) => void;
+  cwd: string;
 }
 
 const level = (rule: Rule): string =>
@@ -11,12 +12,10 @@ const level = (rule: Rule): string =>
 const fixable = (rule: Rule): string =>
   rule.meta.fixable === null ? '' : (rule.meta.fixSafety ?? 'safe');
 
-const sorted = (): Rule[] =>
-  [...buildRegistry().values()].sort((a, b) => a.meta.id.localeCompare(b.meta.id));
-
-/** List every registered rule, as a table or as JSON. */
-export function runRules(options: { json?: boolean }, deps: RulesDeps): number {
-  const rules = sorted();
+/** List every rule the config can name — built-in and from its plugins — as a table or as JSON. */
+export async function runRules(options: { json?: boolean; config?: string }, deps: RulesDeps): Promise<number> {
+  const { registry } = await readUserConfig(options, deps.cwd);
+  const rules = [...registry.values()].sort((a, b) => a.meta.id.localeCompare(b.meta.id));
 
   if (options.json) {
     deps.write(

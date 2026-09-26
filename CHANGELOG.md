@@ -6,6 +6,19 @@ All notable changes to workflow-lint are recorded here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- `plugins` in the config file loads third-party rules into the CLI, the GitHub Action and the MCP server: a local module or an npm package exporting `rules` (and optionally `presets`). `workflow-lint rules` lists them. The API-only workaround is no longer needed.
+- `extends` accepts local files (`./shared/base.yaml`, relative to the extending file) and npm packages (a module exporting a config, or a package whose `main` is a YAML file), alongside presets. Maps merge, lists append, the extending file wins.
+- The config file is found by walking up from the working directory, so `workflow-lint lint` inside `flows/billing/` uses the repo's config. The nearest file wins.
+- `workflow-lint rules --config <path>`, and `WORKFLOW_LINT_CONFIG` for the MCP server.
+- `readConfig` and `loadConfig` in `workflow-lint/core`: the loader every surface shares, for tools that embed the linter.
+
+### Changed
+
+- The MCP server reads the config file instead of hardcoding `workflow-lint:recommended`. A rule turned off in the repo is off for the agent too. It re-reads the file on every call.
+- A config error (unknown rule, unloadable plugin, unresolvable `extends`) exits 2 with one line naming the cause instead of a stack trace.
+
 ## 0.1.1 — 2026-09-21
 
 ### Fixed

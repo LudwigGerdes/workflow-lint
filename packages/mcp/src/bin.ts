@@ -9,9 +9,11 @@ import { createServer } from './server.js';
 const apiKey = process.env['WORKFLOW_LINT_N8N_API_KEY'];
 const allowedInstance = process.env['WORKFLOW_LINT_N8N_INSTANCE'];
 const n8nVersion = process.env['WORKFLOW_LINT_N8N_VERSION'];
+const configPath = process.env['WORKFLOW_LINT_CONFIG'];
 
 const server = createServer({
   ...(n8nVersion !== undefined ? { n8nVersion } : {}),
+  ...(configPath !== undefined ? { configPath } : {}),
   ...(apiKey && allowedInstance
     ? { fetchWorkflow: createInstanceFetcher({ apiKey, allowedInstance }) }
     : {}),

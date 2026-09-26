@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { buildProgram } from '../src/index.js';
@@ -228,5 +228,67 @@ describe('workflow-lint --version', () => {
       exitCode: 0,
     });
     expect(printed.trim()).toBe(version);
+  });
+});
+
+describe('config discovery and plugins', () => {
+  const PLUGIN = `
+export const rules = [{
+  meta: {
+    id: 'acme/no-set-node', type: 'problem', class: 'quality', fixable: null,
+    docs: { description: 'Acme forbids Edit Fields nodes.', recommended: 'error' },
+    messages: { found: 'Edit Fields node "{{name}}" is not allowed.' }, schema: [],
+  },
+  create: (ctx) => ({
+    'Node[type="n8n-nodes-base.set"]': (node) => ctx.report({ node, messageId: 'found', data: { name: node.name } }),
+  }),
+}];
+`;
+
+  it('finds the config above the working directory and loads its plugin', async () => {
+    const root = mkdtempSync(join(tmpdir(), 'workflow-lint-cli-walk-'));
+    mkdirSync(join(root, 'tools'));
+    mkdirSync(join(root, 'flows', 'billing'), { recursive: true });
+    writeFileSync(join(root, 'tools', 'acme.mjs'), PLUGIN);
+    writeFileSync(
+      join(root, 'workflow-lint.config.yaml'),
+      'plugins: [./tools/acme.mjs]\nrules:\n  acme/no-set-node: error\n',
+    );
+    writeFileSync(
+      join(root, 'flows', 'billing', 'invoice.json'),
+      workflow([trigger, node('Shape Payload', 'n8n-nodes-base.set', 3.4)]),
+    );
+    dir = join(root, 'flows', 'billing');
+    await run(['invoice.json', '--rule', 'acme/no-set-node', '--format', 'json']);
+    const report = JSON.parse(out) as { summary: { errors: number }; files: Array<{ findings: Array<{ ruleId: string; message: string }> }> };
+    expect(report.summary.errors).toBe(1);
+    expect(report.files[0]?.findings[0]?.ruleId).toBe('acme/no-set-node');
+    expect(report.files[0]?.findings[0]?.message).toContain('Shape Payload');
+    expect(code).toBe(1);
+  });
+
+  it('a plugin that cannot be loaded is a config error, named', async () => {
+    writeFileSync(join(dir, 'workflow-lint.config.yaml'), 'plugins: [./nope.mjs]\n');
+    await run(['clean.json']);
+    expect(err).toContain('nope.mjs');
+    expect(code).toBe(2);
+  });
+
+  it('rules lists plugin rules alongside the built-in ones', async () => {
+    writeFileSync(join(dir, 'acme.mjs'), PLUGIN);
+    writeFileSync(join(dir, 'workflow-lint.config.yaml'), 'plugins: [./acme.mjs]\n');
+    out = '';
+    await buildProgram({
+      write: (t) => {
+        out += t;
+      },
+      writeErr: () => {},
+      cwd: dir,
+      readStdin: async () => '',
+      setExitCode: () => {},
+    }).parseAsync(['rules', '--json'], { from: 'user' });
+    const ids = (JSON.parse(out) as Array<{ id: string }>).map((r) => r.id);
+    expect(ids).toContain('acme/no-set-node');
+    expect(ids).toContain(NAME_RULE);
   });
 });

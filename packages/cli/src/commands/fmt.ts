@@ -1,6 +1,6 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { relative } from 'node:path';
-import { buildIgnore, loadConfigFile } from 'workflow-lint-core';
+import { buildIgnore, readConfig } from 'workflow-lint-core';
 import { formatText } from 'workflow-lint-fmt';
 import { discover, reportIgnored, reportSkipped, UsageError } from '../files.js';
 import { createLogger, DEFAULT_LOG_LEVEL, isLogLevel, LOG_LEVELS } from '../log.js';
@@ -47,7 +47,7 @@ export async function runFmt(
   const skipped: string[] = [];
   // fmt reads the same ignore rules as lint. If `lint .` skips a gitignored
   // `local/` but `fmt .` rewrites it, the pair contradict each other.
-  const { config } = await loadConfigFile(cwd);
+  const { config } = await readConfig({ cwd });
   const matcher = await buildIgnore({
     root: cwd,
     ...(config.ignore ? { patterns: config.ignore } : {}),
