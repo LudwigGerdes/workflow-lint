@@ -155,3 +155,38 @@ describe('lint', () => {
     expect(defaultName).toBe(false);
   });
 });
+
+describe('a throwing rule', () => {
+  const throwing: Rule = {
+    meta: {
+      id: 'test/throws',
+      type: 'problem',
+      fixable: null,
+      docs: { description: 'throws', recommended: 'error' },
+      messages: {},
+    },
+    create: () => ({
+      'Node[type="n8n-nodes-base.set"]': (target) => {
+        throw new Error(`boom at ${(target as INode).name}`);
+      },
+    }),
+  };
+  const config: ResolvedConfig = {
+    settings: { n8nVersion: '2.38.3' },
+    rules: new Map([
+      [throwing.meta.id, { rule: throwing, severity: 'error', options: {} }],
+      [alwaysReport.meta.id, { rule: alwaysReport, severity: 'warn', options: {} }],
+    ]),
+  };
+
+  it('costs that rule on that file, not the run, and is named in the findings', async () => {
+    const res = await lint({ text, path: 'basic.json' }, config);
+    const crashes = res.findings.filter((f) => f.ruleId === 'internal/rule-crashed');
+    expect(crashes).toHaveLength(1);
+    expect(crashes[0]?.message).toMatch(/Rule "test\/throws" threw.*boom at/);
+    expect(crashes[0]?.nodeName).toBeDefined();
+    expect(crashes[0]?.severity).toBe('error');
+    // The other rule still ran.
+    expect(res.findings.some((f) => f.ruleId === 'test/always-report')).toBe(true);
+  });
+});

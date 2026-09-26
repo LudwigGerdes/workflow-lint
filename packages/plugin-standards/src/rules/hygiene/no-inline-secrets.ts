@@ -10,8 +10,16 @@ const TOKEN_SHAPES = [
 
 const CREDENTIAL_HEADER = /authorization|x-api-key|api[-_]?key|token/i;
 
-/** A value that defers to n8n's own secret storage is fine. */
-const SAFE_REFERENCE = /\$credentials|\$env/;
+/**
+ * The literal text of a value: everything outside `{{ … }}`, with the leading
+ * `=` of an expression removed. A `$credentials` or `$env` reference is only
+ * safe for the part it resolves; a token pasted beside it is still a token.
+ */
+const literalPart = (value: string): string =>
+  (value.startsWith('=') ? value.slice(1) : value).replace(/\{\{[\s\S]*?\}\}/g, '');
+
+/** A credential header whose literal part is nothing, or only an auth scheme, carries no secret. */
+const SCHEME_ONLY = /^(?:bearer|basic|token|apikey)?\s*$/i;
 
 const walkStrings = (value: unknown, path: string, cb: (value: string, path: string) => void): void => {
   if (typeof value === 'string') cb(value, path);
@@ -63,8 +71,7 @@ export const rule: Rule = {
               typeof header?.name === 'string' &&
               CREDENTIAL_HEADER.test(header.name) &&
               typeof header.value === 'string' &&
-              header.value.trim().length > 0 &&
-              !SAFE_REFERENCE.test(header.value)
+              !SCHEME_ONLY.test(literalPart(header.value).trim())
             ) {
               report(`headerParameters.parameters[${i}].value`);
             }
@@ -72,9 +79,10 @@ export const rule: Rule = {
         }
 
         walkStrings(node.parameters, '', (value, path) => {
-          if (SAFE_REFERENCE.test(value)) return;
+          const literal = literalPart(value).trim();
+          if (literal.length === 0) return;
           const looksLikeSecret =
-            TOKEN_SHAPES.some((re) => re.test(value)) || patterns.some((re) => re.test(value));
+            TOKEN_SHAPES.some((re) => re.test(literal)) || patterns.some((re) => re.test(literal));
           if (looksLikeSecret) report(path);
         });
       },

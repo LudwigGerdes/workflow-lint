@@ -19,6 +19,8 @@ All notable changes to workflow-lint are recorded here. The format follows
 - The JSON report opens with a `meta` block: tool version, n8n version, node-types bundle, config path (or `null`), start time, duration and working directory. `files` and `summary` are unchanged.
 - SARIF results carry `partialFingerprints` (`workflow-lint/v1`: a hash of rule, node and message id) so GitHub code scanning keeps an alert when its node moves in the file. Every driver rule links to its documentation page and is tagged with its department and class. The run records an invocation with start and end times, and `n8nVersion` and `configPath` as run properties.
 - `packageVersion()` is exported from the package for tools that embed the CLI.
+- `n8n/valid` takes `knownPackages`, a list of community or in-house node packages (names or globs such as `n8n-nodes-acme-*`) whose nodes are not reported as unknown.
+- A rule that throws no longer aborts the run. Its handlers are switched off for that file, one `internal/rule-crashed` finding names the rule, the file and the error, every other rule still runs, and the exit code is 2.
 - `--format canvas-overlay` carries `source: "workflow-lint <version>"`, and workflow-render now draws it: `workflow-render export wf.json -o wf.png --overlay findings.json`.
 
 ### Changed
@@ -28,6 +30,7 @@ All notable changes to workflow-lint are recorded here. The format follows
 
 ### Fixed
 
+- `hygiene/no-inline-secrets` exempted any value that mentioned `$env` or `$credentials` anywhere, so a token pasted beside a reference passed. Now only the text outside `{{ … }}` is checked, and a credential header is fine when that text is empty or an auth scheme (`=Bearer {{ $env.TOKEN }}`).
 - The SARIF report's `tool.driver.version` is the real package version; it used to read `0.0.1`. File locations are now SARIF URIs: forward slashes, relative under the working directory, `file://` for a file outside it.
 
 ## 0.1.1 — 2026-09-21

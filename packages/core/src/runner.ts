@@ -24,6 +24,9 @@ import type {
 /** Upper bound on fix passes, matching ESLint's own guard against fix loops. */
 export const MAX_FIX_PASSES = 10;
 
+/** The finding a throwing rule turns into. Not a rule: it cannot be configured or disabled. */
+export const CRASHED_RULE_ID = 'internal/rule-crashed';
+
 interface CompiledHandler {
   selector: Selector;
   handler: (target: SelectorTarget) => void;
@@ -58,8 +61,29 @@ function runRules(
   const n8n = createN8nServices(graph, pack);
   const findings: Finding[] = [];
 
+  // A rule that throws costs that rule on this file, not the run: its
+  // handlers are switched off after the first throw and one finding names
+  // the rule and the error, so the crash is in the report rather than on
+  // stderr with no file attached.
+  const crashed = new Set<string>();
+  const crash = (ruleId: string, error: unknown, nodeName?: string): void => {
+    if (crashed.has(ruleId)) return;
+    crashed.add(ruleId);
+    const reason = error instanceof Error ? error.message : String(error);
+    findings.push({
+      ruleId: CRASHED_RULE_ID,
+      severity: 'error',
+      message: `Rule "${ruleId}" threw while linting this file: ${reason}`,
+      messageId: 'crashed',
+      path: workflow.path,
+      ...(nodeName !== undefined ? { nodeName } : {}),
+      data: { rule: ruleId, reason },
+    });
+  };
+
   const compiled: CompiledHandler[] = [];
   for (const [, resolved] of config.rules) {
+    const ruleId = resolved.rule.meta.id;
     const ctx = createRuleContext({
       meta: resolved.rule.meta,
       options: resolved.options,
@@ -71,7 +95,27 @@ function runRules(
       n8n,
       emit: (f) => findings.push(f),
     });
-    compiled.push(...compile(resolved.rule.create(ctx)));
+    let handlers: SelectorHandlers;
+    try {
+      handlers = resolved.rule.create(ctx);
+    } catch (error) {
+      crash(ruleId, error);
+      continue;
+    }
+    compiled.push(
+      ...compile(handlers).map((c) => ({
+        selector: c.selector,
+        handler: (target: SelectorTarget) => {
+          if (crashed.has(ruleId)) return;
+          try {
+            c.handler(target);
+          } catch (error) {
+            const named = target as { name?: unknown };
+            crash(ruleId, error, typeof named.name === 'string' ? named.name : undefined);
+          }
+        },
+      })),
+    );
   }
 
   const forKind = (kind: Selector['kind']) => compiled.filter((c) => c.selector.kind === kind);

@@ -28,6 +28,7 @@ new RuleTester({ settings: { n8nVersion: '2.38.3' } }).run(rule, {
     { name: 'credential reference', workflow: wf([trigger, httpWithHeader('={{ $credentials.apiKey }}')]) },
     { name: 'env reference', workflow: wf([trigger, setValue('={{ $env.SLACK_TOKEN }}')]) },
     { name: 'ordinary value', workflow: wf([trigger, setValue('hello world')]) },
+    { name: 'a scheme before a reference', workflow: wf([trigger, httpWithHeader('=Bearer {{ $env.API_TOKEN }}')]) },
   ],
   invalid: [
     {
@@ -51,6 +52,16 @@ new RuleTester({ settings: { n8nVersion: '2.38.3' } }).run(rule, {
           data: { parameter: 'assignments.assignments[0].value' },
         },
       ],
+    },
+    {
+      name: 'a token beside a $env reference is still a token',
+      workflow: wf([trigger, setValue('=xoxb-1234567890abcdef {{ $env.NOTE }}')]),
+      errors: [{ messageId: 'secret', nodeName: 'Shape Payload' }],
+    },
+    {
+      name: 'a literal token in a header that also mentions $credentials',
+      workflow: wf([trigger, httpWithHeader('=Bearer sk_live_0123456789abcdef {{ $credentials.x }}')]),
+      errors: [{ messageId: 'secret', nodeName: 'GET Users - Fetch active' }],
     },
     {
       name: 'a custom denylist pattern',

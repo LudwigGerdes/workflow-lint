@@ -8,6 +8,7 @@ import {
   isAutofixable,
   lint,
   loadConfig,
+  CRASHED_RULE_ID,
   parseBaseline,
   resolveConfig,
   serializeBaseline,
@@ -358,6 +359,9 @@ export async function runLint(
 
   // A document that will not parse cannot be linted, so it outranks findings.
   if (results.some((r) => r.parseErrors.length > 0)) return 2;
+  // So does a rule that threw: the file was not fully checked, whatever else
+  // was found, and a green build must not rest on a partial run.
+  if (reported.some((r) => r.findings.some((f) => f.ruleId === CRASHED_RULE_ID))) return 2;
 
   if (options.requireFixableClean && stillFixable.size > 0) {
     const n = stillFixable.size;

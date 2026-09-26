@@ -9,6 +9,19 @@ Semantic checks n8n itself would make: unknown types, parameter issues, wiring a
 | Recommended | `error` |
 | Fixable | no |
 
+## Options
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "knownPackages": {
+      "type": "array"
+    }
+  }
+}
+```
+
 ## Messages
 
 | Message ID | Template |

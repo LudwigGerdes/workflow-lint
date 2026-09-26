@@ -58,7 +58,7 @@ An n8n API response (`{ "data": { … } }`) is accepted wherever a workflow expo
 |---|---|
 | `0` | Clean |
 | `1` | Findings at or above `--fail-on`, or more warnings than `--max-warnings` |
-| `2` | Usage error, or a file that will not parse |
+| `2` | Usage error, a file that will not parse, or a rule that threw (reported as `internal/rule-crashed`, naming the rule and the file; every other rule still ran) |
 
 ### What counts as a workflow
 

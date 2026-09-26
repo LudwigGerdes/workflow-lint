@@ -16,6 +16,16 @@ const CREDENTIAL_HEADER = /authorization|x-api-key|api[-_]?key/i;
 /** An n8n expression begins with `=`; anything else is a literal. */
 const isExpression = (v: unknown): v is string => typeof v === 'string' && v.startsWith('=');
 
+/** `n8n-nodes-acme-erp.invoice` → `n8n-nodes-acme-erp`; `@acme/n8n-nodes-erp.thing` → `@acme/n8n-nodes-erp`. */
+const packageOf = (type: string): string => {
+  const dot = type.indexOf('.', type.startsWith('@') ? type.indexOf('/') : 0);
+  return dot === -1 ? type : type.slice(0, dot);
+};
+
+/** A `knownPackages` entry: a package name, with `*` standing for anything. */
+const globToRegExp = (glob: string): RegExp =>
+  new RegExp(`^${glob.split('*').map((s) => s.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&')).join('.*')}$`);
+
 export const rule: Rule = {
   meta: {
     id: 'n8n/valid',
@@ -26,6 +36,18 @@ export const rule: Rule = {
       description:
         "Semantic checks n8n itself would make: unknown types, parameter issues, wiring and agent configuration.",
       recommended: 'error',
+    },
+    schema: {
+      type: 'object',
+      properties: {
+        /**
+         * Community or in-house node packages this instance has installed,
+         * by name or glob (`n8n-nodes-acme-*`). Their nodes are not reported
+         * as unknown; the bundle has no description for them, so the other
+         * checks on such a node are skipped.
+         */
+        knownPackages: { type: 'array' },
+      },
     },
     messages: {
       unknownNodeType: 'Node "{{name}}" has unknown type "{{type}}"; it will not run on this n8n version.',
@@ -47,6 +69,8 @@ export const rule: Rule = {
   },
 
   create(ctx) {
+    const { knownPackages = [] } = (ctx.options ?? {}) as { knownPackages?: string[] };
+    const known = knownPackages.map(globToRegExp);
     return {
       Node(target) {
         const node = target as INode;
@@ -54,7 +78,10 @@ export const rule: Rule = {
 
         const description = ctx.n8n.nodeType(node);
         if (!description) {
-          ctx.report({ node, messageId: 'unknownNodeType', data: { name, type: node.type } });
+          const pkg = packageOf(node.type);
+          if (!known.some((re) => re.test(pkg) || re.test(node.type))) {
+            ctx.report({ node, messageId: 'unknownNodeType', data: { name, type: node.type } });
+          }
           return;
         }
 

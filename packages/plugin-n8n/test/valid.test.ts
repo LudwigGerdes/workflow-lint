@@ -21,6 +21,15 @@ const SYSTEM = { options: { systemMessage: 'You are a helpful assistant.' } };
 new RuleTester({ settings: { n8nVersion: '2.38.3' } }).run(rule, {
   valid: [
     {
+      name: 'a community node from a known package',
+      workflow: wf([
+        trigger,
+        { name: 'Post Invoice', type: 'n8n-nodes-acme-erp.invoice', typeVersion: 1 },
+        { name: 'Sync', type: '@acme/n8n-nodes-erp.sync', typeVersion: 1 },
+      ]),
+      options: { knownPackages: ['n8n-nodes-acme-*', '@acme/n8n-nodes-erp'] },
+    },
+    {
       name: 'clean linear workflow',
       workflow: wf([trigger, httpOk, set('Shape Payload')], [
         [trigger.name, httpOk.name],
@@ -49,6 +58,12 @@ new RuleTester({ settings: { n8nVersion: '2.38.3' } }).run(rule, {
     },
   ],
   invalid: [
+    {
+      name: 'a package outside knownPackages is still unknown',
+      workflow: wf([trigger, { name: 'Weird', type: 'n8n-nodes-other.thing' }]),
+      options: { knownPackages: ['n8n-nodes-acme-*', '@acme/n8n-nodes-erp'] },
+      errors: [{ messageId: 'unknownNodeType', nodeName: 'Weird' }],
+    },
     {
       name: 'unknown node type',
       workflow: wf([trigger, { name: 'Weird', type: 'n8n-nodes-base.doesNotExist' }]),

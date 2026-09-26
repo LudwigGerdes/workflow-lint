@@ -35,6 +35,15 @@ Node descriptions for 2.38.3 ship in the package, and `node-types install <versi
 
 `workflow-lint rules` lists every rule with its level and a one-line reason. Each rule has a page under [Rules](https://workflowtools.dev/workflow-lint/rules) with its options and what `--fix` does. Over MCP, `explain_rule` returns the same page.
 
+### My own nodes are reported as unknown
+
+`n8n/valid` knows the nodes n8n ships. Name the packages your instance has installed and their nodes are no longer reported; the other checks on such a node are skipped, since there is no description to check against.
+
+```yaml
+rules:
+  n8n/valid: [error, { knownPackages: ["n8n-nodes-acme-*", "@acme/n8n-nodes-erp"] }]
+```
+
 ### What does it not check?
 
 - The contents of expressions. `{{ $jsn.body.id }}` is not flagged as a typo.
