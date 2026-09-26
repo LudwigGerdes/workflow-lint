@@ -1,6 +1,6 @@
 {
   "name": "workflow-lint-core",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "private": true,
   "description": "workflow-lint engine: workflow parsing with source map, lint graph, selectors, fixer, config and baseline",
   "keywords": [

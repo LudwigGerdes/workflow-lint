@@ -6,6 +6,8 @@ All notable changes to workflow-lint are recorded here. The format follows
 
 ## [Unreleased]
 
+## 0.2.0 — 2026-09-26
+
 ### Added
 
 - `plugins` in the config file loads third-party rules into the CLI, the GitHub Action and the MCP server: a local module or an npm package exporting `rules` (and optionally `presets`). `workflow-lint rules` lists them. The API-only workaround is no longer needed.

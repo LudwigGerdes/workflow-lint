@@ -1,6 +1,6 @@
 {
   "name": "workflow-lint-mcp",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "private": true,
   "description": "workflow-lint as a stdio MCP server: lint, fix and format n8n workflows from an AI agent",
   "keywords": [
