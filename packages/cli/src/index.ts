@@ -1,7 +1,5 @@
 import { Command } from 'commander';
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
-import { packageRoot } from 'workflow-lint-node-types';
+import { packageVersion } from './version.js';
 import { runLint, type LintCommandOptions } from './commands/lint.js';
 import { runInit } from './commands/init.js';
 import { runRules } from './commands/rules.js';
@@ -35,14 +33,6 @@ const defaultStdin = async (): Promise<string> => {
 };
 
 const collect = (value: string, previous: string[]): string[] => [...previous, value];
-
-/** The package's own version, so `--version` can never advertise a stale literal. */
-const packageVersion = (): string =>
-  (
-    JSON.parse(readFileSync(join(packageRoot(import.meta.url), 'package.json'), 'utf8')) as {
-      version: string;
-    }
-  ).version;
 
 /**
  * Build the CLI. Every side effect arrives through `deps`, so tests drive the
@@ -268,3 +258,4 @@ export { listDifferent } from './reporters/list.js';
 export { summarise, type Summary } from './reporters/summary.js';
 export { createLogger, isLogLevel, LOG_LEVELS, type LogLevel, type Logger } from './log.js';
 export { UsageError } from './files.js';
+export { packageVersion } from './version.js';

@@ -1,6 +1,8 @@
 import { describe, it, expect } from 'vitest';
+import { createHash } from 'node:crypto';
+import { pathToFileURL } from 'node:url';
 import type { Finding, LintResult, Rule } from 'workflow-lint-core';
-import { githubActions, junit, sarif } from '../src/index.js';
+import { githubActions, json, junit, sarif } from '../src/index.js';
 
 const finding = (over: Partial<Finding> = {}): Finding => ({
   ruleId: 'naming/no-default-node-name',
@@ -37,6 +39,7 @@ const rules = new Map<string, Rule>([
       meta: {
         id: 'naming/no-default-node-name',
         type: 'suggestion',
+        class: 'stylistic',
         fixable: null,
         docs: { description: 'Nodes need descriptive names.', recommended: 'warn' },
         messages: {},
@@ -50,11 +53,12 @@ describe('sarif', () => {
   const report = () => JSON.parse(sarif(results, { rules, version: '1.2.3' })) as {
     version: string;
     runs: Array<{
-      tool: { driver: { name: string; version: string; rules: Array<{ id: string; shortDescription?: { text: string }; defaultConfiguration?: { level: string } }> } };
+      tool: { driver: { name: string; version: string; rules: Array<{ id: string; shortDescription?: { text: string }; defaultConfiguration?: { level: string }; helpUri?: string; properties?: { tags: string[] } }> } };
       results: Array<{
         ruleId: string;
         level: string;
         message: { text: string };
+        partialFingerprints: Record<string, string>;
         locations: Array<{ physicalLocation: { artifactLocation: { uri: string }; region: { startLine: number; startColumn: number } } }>;
         fixes?: unknown[];
       }>;
@@ -120,6 +124,148 @@ describe('sarif', () => {
       runs: Array<{ results: Array<{ fixes?: unknown[] }> }>;
     };
     expect(withoutSource.runs[0]!.results[0]!.fixes).toBeUndefined();
+  });
+
+  it('omits the driver version rather than inventing one', () => {
+    const out = JSON.parse(sarif(results)) as { runs: Array<{ tool: { driver: { version?: string } } }> };
+    expect(out.runs[0]!.tool.driver).not.toHaveProperty('version');
+  });
+
+  it('fingerprints each result by rule, node and message id, independent of position', () => {
+    const [first, second] = report().runs[0]!.results;
+    const expected = (parts: string[]) => createHash('sha256').update(parts.join('\0')).digest('hex');
+    expect(first!.partialFingerprints).toEqual({
+      'workflow-lint/v1': expected(['n8n/valid', 'Fetch', 'defaultName']),
+    });
+    expect(second!.partialFingerprints).toEqual({
+      'workflow-lint/v1': expected(['naming/no-default-node-name', 'Edit Fields', 'defaultName']),
+    });
+
+    // Moving the node in the file must not change the fingerprint.
+    const moved: LintResult[] = [
+      { path: 'workflows/users.json', parseErrors: [], findings: [finding({ loc: { line: 900, column: 1 } })] },
+    ];
+    const again = JSON.parse(sarif(moved)) as { runs: Array<{ results: Array<{ partialFingerprints: Record<string, string> }> }> };
+    expect(again.runs[0]!.results[0]!.partialFingerprints).toEqual(second!.partialFingerprints);
+
+    // Without a message id the message text stands in; without a node, the empty string.
+    const bare: LintResult[] = [
+      { path: 'w.json', parseErrors: [], findings: [finding({ messageId: undefined, nodeName: undefined, message: 'plain' })] },
+    ];
+    const bareOut = JSON.parse(sarif(bare)) as { runs: Array<{ results: Array<{ partialFingerprints: Record<string, string> }> }> };
+    expect(bareOut.runs[0]!.results[0]!.partialFingerprints['workflow-lint/v1']).toBe(
+      expected(['naming/no-default-node-name', '', 'plain']),
+    );
+  });
+
+  it('links every rule to its documentation page and tags it by department and class', () => {
+    const driverRules = report().runs[0]!.tool.driver.rules;
+    const named = driverRules.find((r) => r.id === 'naming/no-default-node-name')!;
+    expect(named.helpUri).toBe('https://workflowtools.dev/workflow-lint/rules/naming/no-default-node-name');
+    expect(named.properties).toEqual({ tags: ['naming', 'stylistic'] });
+    // A rule with no metadata at hand still gets the derived link and its department tag.
+    const unknown = driverRules.find((r) => r.id === 'n8n/valid')!;
+    expect(unknown.helpUri).toBe('https://workflowtools.dev/workflow-lint/rules/n8n/valid');
+    expect(unknown.properties).toEqual({ tags: ['n8n'] });
+
+    // An explicit docs.url wins over the derived one.
+    const withUrl = new Map<string, Rule>([
+      [
+        'naming/no-default-node-name',
+        {
+          meta: {
+            id: 'naming/no-default-node-name',
+            type: 'suggestion',
+            class: 'stylistic',
+            fixable: null,
+            docs: { description: 'd', recommended: 'warn', url: 'https://example.test/rule' },
+            messages: {},
+          },
+          create: () => ({}),
+        },
+      ],
+    ]);
+    const out = JSON.parse(sarif(results, { rules: withUrl })) as {
+      runs: Array<{ tool: { driver: { rules: Array<{ id: string; helpUri?: string }> } } }>;
+    };
+    expect(out.runs[0]!.tool.driver.rules.find((r) => r.id === 'naming/no-default-node-name')!.helpUri).toBe(
+      'https://example.test/rule',
+    );
+  });
+
+  it('writes artifact locations as SARIF URIs: relative under cwd, file:// outside it', () => {
+    const cwd = '/repo';
+    const cases: LintResult[] = [
+      { path: 'flows\\a.json', parseErrors: [], findings: [finding({ path: 'flows\\a.json' })] },
+      { path: '/repo/flows/b.json', parseErrors: [], findings: [finding({ path: '/repo/flows/b.json' })] },
+      { path: '/elsewhere/c.json', parseErrors: [], findings: [finding({ path: '/elsewhere/c.json' })] },
+    ];
+    const out = JSON.parse(sarif(cases, { cwd })) as {
+      runs: Array<{ results: Array<{ locations: Array<{ physicalLocation: { artifactLocation: { uri: string } } }> }> }>;
+    };
+    const uris = out.runs[0]!.results.map((r) => r.locations[0]!.physicalLocation.artifactLocation.uri);
+    expect(uris).toEqual(['flows/a.json', 'flows/b.json', pathToFileURL('/elsewhere/c.json').href]);
+  });
+
+  it('records the invocation with the times it is given, and the run properties', () => {
+    const out = JSON.parse(
+      sarif(results, {
+        startTime: new Date('2026-09-25T10:00:00.000Z'),
+        endTime: new Date('2026-09-25T10:00:01.500Z'),
+        n8nVersion: '2.38.3',
+        configPath: '.workflow-lint.yaml',
+      }),
+    ) as {
+      runs: Array<{
+        invocations: Array<{ executionSuccessful: boolean; startTimeUtc: string; endTimeUtc: string }>;
+        properties: Record<string, unknown>;
+      }>;
+    };
+    expect(out.runs[0]!.invocations).toEqual([
+      { executionSuccessful: true, startTimeUtc: '2026-09-25T10:00:00.000Z', endTimeUtc: '2026-09-25T10:00:01.500Z' },
+    ]);
+    expect(out.runs[0]!.properties).toEqual({ n8nVersion: '2.38.3', configPath: '.workflow-lint.yaml' });
+
+    // Nothing known, nothing claimed.
+    const bare = JSON.parse(sarif(results)) as { runs: Array<{ invocations?: unknown; properties?: unknown }> };
+    expect(bare.runs[0]!.invocations).toBeUndefined();
+    expect(bare.runs[0]!.properties).toBeUndefined();
+  });
+});
+
+describe('json', () => {
+  it('leads with a meta block describing the run, and keeps files and summary', () => {
+    const out = JSON.parse(
+      json(results, {
+        version: '1.2.3',
+        n8nVersion: '2.38.3',
+        nodeTypesVersion: '2.38.3',
+        config: '/repo/.workflow-lint.yaml',
+        startedAt: '2026-09-25T10:00:00.000Z',
+        durationMs: 42,
+        cwd: '/repo',
+      }),
+    ) as { meta: Record<string, unknown>; files: unknown[]; summary: { problems: number } };
+    expect(Object.keys(out)).toEqual(['meta', 'files', 'summary']);
+    expect(out.meta).toEqual({
+      tool: 'workflow-lint',
+      version: '1.2.3',
+      n8nVersion: '2.38.3',
+      nodeTypesVersion: '2.38.3',
+      config: '/repo/.workflow-lint.yaml',
+      startedAt: '2026-09-25T10:00:00.000Z',
+      durationMs: 42,
+      cwd: '/repo',
+    });
+    expect(out.files).toHaveLength(1);
+    expect(out.summary.problems).toBe(2);
+  });
+
+  it('writes null for a missing config and omits meta when none is given', () => {
+    const withMeta = JSON.parse(json(results, { version: '1.2.3', config: null })) as { meta: Record<string, unknown> };
+    expect(withMeta.meta).toEqual({ tool: 'workflow-lint', version: '1.2.3', config: null });
+    const without = JSON.parse(json(results)) as Record<string, unknown>;
+    expect(without).not.toHaveProperty('meta');
   });
 });
 

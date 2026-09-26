@@ -155,6 +155,34 @@ describe('workflow-lint lint', () => {
     expect(code).toBe(2);
   });
 
+  it('stamps the JSON report with the tool version and the node-types bundle it used', async () => {
+    await run(['clean.json', '--rule', NAME_RULE, '--format', 'json']);
+    const { meta } = JSON.parse(out) as {
+      meta: { tool: string; version: string; nodeTypesVersion: string; config: string | null; startedAt: string; durationMs: number; cwd: string };
+    };
+    const pkg = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')) as { version: string };
+    expect(meta.tool).toBe('workflow-lint');
+    expect(meta.version).toBe(pkg.version);
+    expect(typeof meta.nodeTypesVersion).toBe('string');
+    expect(meta.nodeTypesVersion.length).toBeGreaterThan(0);
+    expect(meta.config).toBeNull();
+    expect(new Date(meta.startedAt).toISOString()).toBe(meta.startedAt);
+    expect(meta.durationMs).toBeGreaterThanOrEqual(0);
+    expect(meta.cwd).toBe(dir);
+  });
+
+  it('stamps the SARIF report with the tool version and an invocation', async () => {
+    await run(['clean.json', '--rule', NAME_RULE, '--format', 'sarif']);
+    const { runs } = JSON.parse(out) as {
+      runs: Array<{ tool: { driver: { version: string } }; invocations: Array<{ executionSuccessful: boolean; startTimeUtc: string; endTimeUtc: string }>; properties: { n8nVersion: string } }>;
+    };
+    const pkg = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')) as { version: string };
+    expect(runs[0]!.tool.driver.version).toBe(pkg.version);
+    expect(runs[0]!.invocations[0]!.executionSuccessful).toBe(true);
+    expect(runs[0]!.invocations[0]!.endTimeUtc >= runs[0]!.invocations[0]!.startTimeUtc).toBe(true);
+    expect(typeof runs[0]!.properties.n8nVersion).toBe('string');
+  });
+
   it('reports stdin that is not a workflow, and exits 2', async () => {
     await run(['-', '--format', 'json'], JSON.stringify({ hello: 'world' }));
     const report = JSON.parse(out) as { summary: { errors: number } };

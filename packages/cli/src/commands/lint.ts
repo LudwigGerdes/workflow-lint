@@ -38,6 +38,7 @@ import { githubActions } from '../reporters/github-actions.js';
 import { canvasOverlay } from '../reporters/canvas-overlay.js';
 import { listDifferent } from '../reporters/list.js';
 import { createLogger, DEFAULT_LOG_LEVEL, isLogLevel, LOG_LEVELS } from '../log.js';
+import { packageVersion } from '../version.js';
 import { summarise, type DirectiveSummary } from '../reporters/summary.js';
 
 export interface LintCommandOptions {
@@ -322,12 +323,30 @@ export async function runLint(
     options.failOnStylistic === true || classOf(ruleId) !== 'stylistic';
   const blocks = (f: { ruleId: string; severity: ReportedSeverity }): boolean =>
     SEVERITY_RANK[f.severity] >= SEVERITY_RANK[failOn] && canFail(f.ruleId);
+  const finished = Date.now();
   const output = options.listDifferent
     ? listDifferent(reported, { blocks })
     : options.format === 'json'
-      ? jsonReporter(reported)
+      ? jsonReporter(reported, {
+          version: packageVersion(),
+          ...(requested !== undefined ? { n8nVersion: requested } : {}),
+          nodeTypesVersion: bundle.version,
+          config: configPath ?? null,
+          startedAt: new Date(started).toISOString(),
+          durationMs: finished - started,
+          cwd,
+        })
       : options.format === 'sarif'
-        ? sarif(reported, { rules: registry, sources })
+        ? sarif(reported, {
+            version: packageVersion(),
+            rules: registry,
+            sources,
+            cwd,
+            startTime: new Date(started),
+            endTime: new Date(finished),
+            n8nVersion: requested ?? bundle.version,
+            ...(configPath !== undefined ? { configPath } : {}),
+          })
         : options.format === 'junit'
           ? junit(reported, { failOn })
           : options.format === 'github-actions'

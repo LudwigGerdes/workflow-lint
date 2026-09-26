@@ -16,11 +16,18 @@ All notable changes to workflow-lint are recorded here. The format follows
 - `locked` in the config file holds a rule or department at a severity that no later layer can change: `rules`, `departments`, overrides and inline directives included. A lock in an extended file beats the extending file's own `locked`.
 - `--no-inline-config` turns off `workflow-lint-disable` directives for a run.
 - The JSON report lists every inline directive per file (`directives`: location, rules, reason, `suppressed`, `blocked`, `ignored`) and counts them in the summary. A directive that suppresses nothing is named on stderr.
+- The JSON report opens with a `meta` block: tool version, n8n version, node-types bundle, config path (or `null`), start time, duration and working directory. `files` and `summary` are unchanged.
+- SARIF results carry `partialFingerprints` (`workflow-lint/v1`: a hash of rule, node and message id) so GitHub code scanning keeps an alert when its node moves in the file. Every driver rule links to its documentation page and is tagged with its department and class. The run records an invocation with start and end times, and `n8nVersion` and `configPath` as run properties.
+- `packageVersion()` is exported from the package for tools that embed the CLI.
 
 ### Changed
 
 - The MCP server reads the config file instead of hardcoding `workflow-lint:recommended`. A rule turned off in the repo is off for the agent too. It re-reads the file on every call.
 - A config error (unknown rule, unloadable plugin, unresolvable `extends`) exits 2 with one line naming the cause instead of a stack trace.
+
+### Fixed
+
+- The SARIF report's `tool.driver.version` is the real package version; it used to read `0.0.1`. File locations are now SARIF URIs: forward slashes, relative under the working directory, `file://` for a file outside it.
 
 ## 0.1.1 — 2026-09-21
 
