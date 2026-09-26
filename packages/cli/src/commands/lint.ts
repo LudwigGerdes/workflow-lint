@@ -352,7 +352,7 @@ export async function runLint(
           : options.format === 'github-actions'
             ? githubActions(reported)
             : options.format === 'canvas-overlay'
-              ? canvasOverlay(reported)
+              ? canvasOverlay(reported, { version: packageVersion() })
               : stylish(reported);
   if (!log.silent && output.length > 0) deps.write(output);
 

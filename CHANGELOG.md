@@ -19,6 +19,7 @@ All notable changes to workflow-lint are recorded here. The format follows
 - The JSON report opens with a `meta` block: tool version, n8n version, node-types bundle, config path (or `null`), start time, duration and working directory. `files` and `summary` are unchanged.
 - SARIF results carry `partialFingerprints` (`workflow-lint/v1`: a hash of rule, node and message id) so GitHub code scanning keeps an alert when its node moves in the file. Every driver rule links to its documentation page and is tagged with its department and class. The run records an invocation with start and end times, and `n8nVersion` and `configPath` as run properties.
 - `packageVersion()` is exported from the package for tools that embed the CLI.
+- `--format canvas-overlay` carries `source: "workflow-lint <version>"`, and workflow-render now draws it: `workflow-render export wf.json -o wf.png --overlay findings.json`.
 
 ### Changed
 

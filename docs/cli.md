@@ -109,7 +109,7 @@ Formatting the same file twice changes nothing. The same diff is available as th
 | `sarif` | GitHub code scanning. Suggested fixes are included. Each result carries a `partialFingerprints` entry (`workflow-lint/v1`: a hash of rule, node and message, stable when a node moves in the file, so code scanning dedupes alerts); every rule links to its page under `https://workflowtools.dev/workflow-lint/rules/` and is tagged with its department and class; file locations are SARIF URIs (relative under the working directory, `file://` outside it); the run records the tool version, an invocation with start and end times, and the n8n version and config path |
 | `junit` | GitLab and most CI runners |
 | `github-actions` | Inline annotations on a pull request, with no upload step |
-| `canvas-overlay` | Per-node badges for a canvas renderer. Reserved; nothing renders it yet |
+| `canvas-overlay` | Findings as badges on the canvas. `workflow-lint lint wf.json --format canvas-overlay > findings.json && workflow-render export wf.json -o wf.png --overlay findings.json` draws them; the format is documented at [workflow-render](https://workflowtools.dev/workflow-render/overlay) |
 
 ## Node-type bundles
 

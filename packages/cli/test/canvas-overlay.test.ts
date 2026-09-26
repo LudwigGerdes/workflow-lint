@@ -31,10 +31,12 @@ describe('S6 canvas-overlay', () => {
     edges: Record<string, unknown>;
   };
 
-  it('emits the reserved envelope', () => {
+  it('emits the envelope workflow-render draws, naming its source', () => {
     const out = overlay();
     expect(out.version).toBe(1);
     expect(out.edges).toEqual({});
+    const stamped = JSON.parse(canvasOverlay(results, { version: '1.2.3' })) as { source?: string };
+    expect(stamped.source).toBe('workflow-lint 1.2.3');
   });
 
   it('groups badges by node, one per finding', () => {
