@@ -38,7 +38,7 @@ import { githubActions } from '../reporters/github-actions.js';
 import { canvasOverlay } from '../reporters/canvas-overlay.js';
 import { listDifferent } from '../reporters/list.js';
 import { createLogger, DEFAULT_LOG_LEVEL, isLogLevel, LOG_LEVELS } from '../log.js';
-import { summarise } from '../reporters/summary.js';
+import { summarise, type DirectiveSummary } from '../reporters/summary.js';
 
 export interface LintCommandOptions {
   config?: string;
@@ -53,6 +53,8 @@ export interface LintCommandOptions {
   errorOnUnmatchedPattern?: boolean;
   /** False when `--no-ignore` is passed: lint everything, ignore rules aside. */
   ignore?: boolean;
+  /** False when `--no-inline-config` is passed: directives in notes and stickies are not applied. */
+  inlineConfig?: boolean;
   /** Print only the paths of files that fail the run, one per line. */
   listDifferent?: boolean;
   /** Diagnostic verbosity: silent, error, warn, log or debug. */
@@ -89,6 +91,23 @@ export const builtinRules = (): Rule[] => [...n8nRules, ...standardsRules];
 
 export const buildRegistry = (): Map<string, Rule> =>
   new Map(builtinRules().map((r) => [r.meta.id, r]));
+
+/**
+ * Inline directives are the one suppression nobody reviews in a config diff,
+ * so the run says what they did: a directive that suppressed nothing is stale
+ * or mistyped, and one that named a locked rule did not work.
+ */
+function reportDirectives(d: DirectiveSummary, log: { log: (t: string) => void }): void {
+  if (d.unused > 0) {
+    log.log(`workflow-lint: ${d.unused} inline directive(s) suppress nothing — stale, or the rule id is mistyped\n`);
+  }
+  if (d.blocked > 0) {
+    log.log(`workflow-lint: ${d.blocked} finding(s) kept despite an inline directive: the rule is locked\n`);
+  }
+  if (d.ignored > 0) {
+    log.log(`workflow-lint: ${d.ignored} inline directive(s) not applied (--no-inline-config)\n`);
+  }
+}
 
 /**
  * The config file (nearest, or `--config`), its `extends` chain and its
@@ -250,6 +269,7 @@ export async function runLint(
       ...(options.fixUnsafe ? { fix: true, fixUnsafe: true } : {}),
       ...(baseline ? { baseline, baselineKey: target.path } : {}),
       ...(fixTypes.length > 0 ? { fixTypes: fixTypes as FixType[] } : {}),
+      ...(options.inlineConfig === false ? { inlineConfig: false } : {}),
     });
 
     if (options.requireFixableClean) {
@@ -332,6 +352,7 @@ export async function runLint(
   }
 
   const summary = summarise(reported);
+  reportDirectives(summary.directives, log);
   const failing = reported.flatMap((r) => r.findings).filter(blocks);
   if (failing.length > 0) return 1;
 

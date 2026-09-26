@@ -292,3 +292,53 @@ export const rules = [{
     expect(ids).toContain(NAME_RULE);
   });
 });
+
+describe('inline directives and locked rules', () => {
+  const noted = (notes: string) =>
+    workflow([trigger, node('Edit Fields', 'n8n-nodes-base.set', 3.4, {}), ]).replace(
+      '"name": "Edit Fields",',
+      `"name": "Edit Fields", "notes": ${JSON.stringify(notes)},`,
+    );
+
+  it('reports every directive in JSON, with what it suppressed', async () => {
+    writeFileSync(join(dir, 'noted.json'), noted(`workflow-lint-disable ${NAME_RULE} -- renaming next sprint`));
+    await run(['noted.json', '--rule', NAME_RULE, '--format', 'json']);
+    const report = JSON.parse(out) as {
+      files: Array<{ directives: unknown[] }>;
+      summary: { warnings: number; directives: Record<string, number> };
+    };
+    expect(report.summary.warnings).toBe(0);
+    expect(report.files[0]?.directives).toEqual([
+      { location: 'node:Edit Fields', rules: [NAME_RULE], reason: 'renaming next sprint', suppressed: 1, blocked: 0, ignored: false },
+    ]);
+    expect(report.summary.directives).toEqual({ total: 1, used: 1, unused: 0, blocked: 0, ignored: 0 });
+  });
+
+  it('--no-inline-config reports the finding anyway and says the directive was not applied', async () => {
+    writeFileSync(join(dir, 'noted.json'), noted(`workflow-lint-disable ${NAME_RULE}`));
+    await run(['noted.json', '--rule', NAME_RULE, '--no-inline-config', '--format', 'json']);
+    const report = JSON.parse(out) as { summary: { warnings: number; directives: Record<string, number> } };
+    expect(report.summary.warnings).toBe(1);
+    expect(report.summary.directives.ignored).toBe(1);
+    expect(err).toContain('not applied');
+  });
+
+  it('a stale directive is named on stderr', async () => {
+    writeFileSync(join(dir, 'noted.json'), noted('workflow-lint-disable structure/nothing'));
+    await run(['noted.json', '--rule', NAME_RULE]);
+    expect(err).toContain('1 inline directive(s) suppress nothing');
+  });
+
+  it('a locked rule survives its directive and the config cannot lower it', async () => {
+    writeFileSync(
+      join(dir, 'workflow-lint.config.yaml'),
+      `locked:\n  ${NAME_RULE}: error\nrules:\n  ${NAME_RULE}: off\n`,
+    );
+    writeFileSync(join(dir, 'noted.json'), noted(`workflow-lint-disable ${NAME_RULE}`));
+    await run(['noted.json', '--rule', NAME_RULE, '--format', 'json']);
+    const report = JSON.parse(out) as { summary: { errors: number; directives: Record<string, number> } };
+    expect(report.summary.errors).toBe(1);
+    expect(report.summary.directives.blocked).toBe(1);
+    expect(err).toContain('locked');
+  });
+});

@@ -200,6 +200,11 @@ function mergeConfigs(base: UserConfig, over: UserConfig): UserConfig {
   if (base.plugins !== undefined || over.plugins !== undefined) {
     out.plugins = dedupe([...(base.plugins ?? []), ...(over.plugins ?? [])]);
   }
+  // The one map where the base wins: a lock set upstream is not for the
+  // extending file to loosen.
+  if (base.locked !== undefined || over.locked !== undefined) {
+    out.locked = { ...(over.locked ?? {}), ...(base.locked ?? {}) };
+  }
   return out;
 }
 
@@ -373,6 +378,8 @@ export function resolveConfig(
   };
 
   let settings = { ...(user.settings ?? {}) };
+  // Collected as layers are read, applied after all of them.
+  let locked: Record<string, Severity> = { ...(user.locked ?? {}) };
 
   for (const name of user.extends ?? []) {
     const build = presets[name];
@@ -381,6 +388,7 @@ export function resolveConfig(
     settings = { ...(preset.settings ?? {}), ...settings };
     applyDepartments(preset.departments);
     applyRules(preset.rules);
+    locked = { ...locked, ...(preset.locked ?? {}) };
   }
 
   applyDepartments(user.departments);
@@ -393,6 +401,16 @@ export function resolveConfig(
     applyDepartments(override.departments);
     applyRules(override.rules);
     applyFix(override.fix);
+  }
+
+  const lockedIds = new Set<string>();
+  for (const [key, severity] of Object.entries(locked)) {
+    const ids = registry.has(key) ? [key] : [...registry.keys()].filter((id) => id.startsWith(`${key}/`));
+    if (ids.length === 0) throw new ConfigError(`unknown rule "${key}" in locked`);
+    for (const id of ids) {
+      severities.set(id, severity);
+      lockedIds.add(id);
+    }
   }
 
   const rules = new Map<string, ResolvedRule>();
@@ -411,5 +429,5 @@ export function resolveConfig(
     });
   }
 
-  return { settings, rules };
+  return { settings, rules, ...(lockedIds.size > 0 ? { locked: lockedIds } : {}) };
 }

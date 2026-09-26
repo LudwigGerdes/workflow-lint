@@ -121,3 +121,79 @@ describe('runner honours disables', () => {
     expect(res.findings.map((f) => f.nodeName)).toEqual(['B']);
   });
 });
+
+describe('directives report and locks', () => {
+  const always = (id: string): Rule => ({
+    meta: {
+      id,
+      type: 'suggestion',
+      fixable: null,
+      docs: { description: id, recommended: 'warn' },
+      messages: { m: 'reported' },
+    },
+    create: (ctx) => ({
+      Node: (t) => ctx.report({ node: t as INode, messageId: 'm' }),
+    }),
+  });
+  const rules = [always('naming/always'), always('hygiene/always')];
+  const config = (locked?: string[]): ResolvedConfig => ({
+    settings: { n8nVersion: '2.38.3' },
+    rules: new Map(rules.map((rule) => [rule.meta.id, { rule, severity: 'warn', options: {} }])),
+    ...(locked ? { locked: new Set(locked) } : {}),
+  });
+  const doc = (nodes: unknown[]) => JSON.stringify({ nodes, connections: {} });
+
+  it('reports each directive with what it suppressed', async () => {
+    const text = doc([
+      node('A', { notes: 'workflow-lint-disable naming/always -- legacy' }),
+      node('B', { notes: 'workflow-lint-disable structure/nothing-here' }),
+      node('C'),
+    ]);
+    const res = await lint({ text, path: 'w.json' }, config());
+    expect(res.directives).toEqual([
+      { location: 'node:A', rules: ['naming/always'], reason: 'legacy', suppressed: 1, blocked: 0, ignored: false },
+      { location: 'node:B', rules: ['structure/nothing-here'], suppressed: 0, blocked: 0, ignored: false },
+    ]);
+  });
+
+  it('a locked rule cannot be disabled inline; the attempt is counted', async () => {
+    const text = doc([
+      node('A', { notes: 'workflow-lint-disable naming/always, hygiene/always' }),
+      node('S', { notes: 'workflow-lint-disable-file *' }),
+    ]);
+    const res = await lint({ text, path: 'w.json' }, config(['hygiene/always']));
+    expect(res.findings.map((f) => `${f.ruleId}@${f.nodeName}`)).toEqual([
+      'hygiene/always@A',
+      'hygiene/always@S',
+    ]);
+    const byLocation = Object.fromEntries((res.directives ?? []).map((d) => [d.location, d]));
+    expect(byLocation['node:A']).toMatchObject({ suppressed: 1, blocked: 1 });
+    expect(byLocation['node:S']).toMatchObject({ suppressed: 1, blocked: 1 });
+  });
+
+  it('inlineConfig: false ignores every directive and says so', async () => {
+    const text = doc([node('A', { notes: 'workflow-lint-disable-file *' }), node('B')]);
+    const res = await lint({ text, path: 'w.json' }, config(), { inlineConfig: false });
+    expect(res.findings).toHaveLength(4);
+    expect(res.directives).toEqual([
+      { location: 'node:A', rules: ['*'], suppressed: 0, blocked: 0, ignored: true },
+    ]);
+  });
+
+  it('a sticky directive is reported under the sticky', async () => {
+    const text = doc([
+      {
+        name: 'Sticky Note',
+        type: 'n8n-nodes-base.stickyNote',
+        typeVersion: 1,
+        position: [0, 0],
+        parameters: { content: 'workflow-lint-disable naming -- area\n', width: 300, height: 300 },
+      },
+      node('Inside', { position: [100, 100] }),
+    ]);
+    const res = await lint({ text, path: 'w.json' }, config());
+    expect(res.directives).toEqual([
+      { location: 'sticky:Sticky Note', rules: ['naming'], reason: 'area', suppressed: 1, blocked: 0, ignored: false },
+    ]);
+  });
+});

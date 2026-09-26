@@ -98,6 +98,19 @@ Set `settings.n8nVersion`, or pass `--n8n-version`.
 - Without a pinned version, findings that depend on the n8n version are withheld, and `n8n/typeversion-policy` says so on every run.
 - If the pinned version is not installed, lint continues against the nearest version it has and names it on stderr. Run `workflow-lint node-types install <version>` for exact results.
 
+## Locking a rule
+
+`locked` holds a rule or department at a severity that nothing later can change: not `rules`, not `departments`, not an override, not an inline directive. A lock in an extended file also beats the extending file's own `locked` block, so an organisation config stays in force in every repository that extends it.
+
+```yaml
+# @acme/workflow-lint-config
+locked:
+  hygiene/no-inline-secrets: error
+  reliability: warn
+```
+
+A finding of a locked rule that an inline directive names is reported anyway, and counted as `blocked` in the directive report.
+
 ## Suppressing a finding
 
 n8n workflows have no comments, so directives go in a node's **Notes** field. They can also be the first line of a sticky note, which then covers every node inside the sticky's bounds.
@@ -107,6 +120,10 @@ workflow-lint-disable naming/no-default-node-name -- renaming next sprint
 workflow-lint-disable naming, structure/merge-for-reconvergence
 workflow-lint-disable-file *
 ```
+
+Every directive is listed in the JSON report under the file's `directives`, with its `reason`, how many findings it `suppressed` and how many it named but could not suppress (`blocked`, the rule being locked). The summary counts them as `used`, `unused`, `blocked` and `ignored`. A directive that suppresses nothing is named on stderr: it is stale, or the rule id is mistyped.
+
+`--no-inline-config` turns directives off for a run. They are still parsed and reported, marked `ignored`, so the run shows what it refused to honour.
 
 ## Baseline
 

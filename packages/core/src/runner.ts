@@ -5,10 +5,11 @@ import { LintGraph } from './graph.js';
 import { parseWorkflow } from './parse.js';
 import { matchesNode, parseSelector, type Selector } from './selectors.js';
 import { createN8nServices, createRuleContext } from './context.js';
-import { collectDisables, isDisabled } from './disables.js';
+import { collectDisables, disabledBy } from './disables.js';
 import { applyBaseline, type Baseline } from './baseline.js';
 import type {
   ConnectionRef,
+  DirectiveReport,
   ResolvedVersionInfo,
   Finding,
   FixType,
@@ -51,7 +52,8 @@ function runRules(
   config: ResolvedConfig,
   pack: NodeTypePack,
   n8nVersion: ResolvedVersionInfo,
-): Finding[] {
+  inlineConfig: boolean,
+): { findings: Finding[]; directives: DirectiveReport[] } {
   const graph = new LintGraph(workflow, pack);
   const n8n = createN8nServices(graph, pack);
   const findings: Finding[] = [];
@@ -95,9 +97,35 @@ function runRules(
   for (const c of forKind('Workflow:exit')) c.handler(graph.workflow);
 
   const disables = collectDisables(graph);
-  return findings
-    .filter((f) => !isDisabled(f, disables))
-    .sort((a, b) => (a.loc?.line ?? 0) - (b.loc?.line ?? 0) || a.ruleId.localeCompare(b.ruleId));
+  const counts = disables.directives.map(() => ({ suppressed: 0, blocked: 0 }));
+  const kept = findings.filter((f) => {
+    if (!inlineConfig) return true;
+    const by = disabledBy(f, disables);
+    if (by === undefined) return true;
+    const count = counts[disables.directives.indexOf(by)]!;
+    // A locked rule stays reported; the directive is counted as blocked so
+    // the attempt shows up in the report rather than vanishing.
+    if (config.locked?.has(f.ruleId)) {
+      count.blocked += 1;
+      return true;
+    }
+    count.suppressed += 1;
+    return false;
+  });
+  const directives: DirectiveReport[] = disables.directives.map((d, i) => ({
+    location: d.location,
+    rules: d.tokens,
+    ...(d.reason !== undefined ? { reason: d.reason } : {}),
+    suppressed: counts[i]!.suppressed,
+    blocked: counts[i]!.blocked,
+    ignored: !inlineConfig,
+  }));
+  return {
+    findings: kept.sort(
+      (a, b) => (a.loc?.line ?? 0) - (b.loc?.line ?? 0) || a.ruleId.localeCompare(b.ruleId),
+    ),
+    directives,
+  };
 }
 
 export interface LintOptions {
@@ -112,6 +140,11 @@ export interface LintOptions {
   /** Suppress findings already recorded in this baseline under `baselineKey`. */
   baseline?: Baseline;
   baselineKey?: string;
+  /**
+   * False turns off inline `workflow-lint-disable` directives. They are still
+   * parsed and reported, so the run says what it refused to honour.
+   */
+  inlineConfig?: boolean;
 }
 
 /**
@@ -143,8 +176,9 @@ export async function lint(
   const baselined = (result: LintResult): LintResult =>
     opts.baseline ? applyBaseline(result, opts.baseline, opts.baselineKey ?? input.path) : result;
 
-  let findings = runRules(current, config, pack, n8nVersion);
-  if (!opts.fix) return baselined({ path: input.path, findings, parseErrors: [] });
+  const inlineConfig = opts.inlineConfig !== false;
+  let { findings, directives } = runRules(current, config, pack, n8nVersion, inlineConfig);
+  if (!opts.fix) return baselined({ path: input.path, findings, parseErrors: [], directives });
 
   const typeAllowed = (ruleId: string): boolean => {
     if (!opts.fixTypes || opts.fixTypes.length === 0) return true;
@@ -172,7 +206,7 @@ export async function lint(
     if (!reparsed.workflow) break;
 
     current = reparsed.workflow;
-    findings = runRules(current, config, pack, n8nVersion);
+    ({ findings, directives } = runRules(current, config, pack, n8nVersion, inlineConfig));
     passes += 1;
   }
 
@@ -182,6 +216,7 @@ export async function lint(
     parseErrors: [],
     fixedJson: current.json,
     fixPasses: passes,
+    directives,
   });
 }
 

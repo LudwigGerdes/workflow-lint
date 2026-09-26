@@ -10,46 +10,47 @@ import type { Finding } from './types.js';
  *   workflow-lint-disable naming, structure/merge-for-reconvergence
  *   workflow-lint-disable-file *
  */
-const DIRECTIVE = /^workflow-lint-disable(-file)?\s+([\w/*-]+(?:\s*,\s*[\w/*-]+)*)(?:\s+--\s+.*)?$/;
+const DIRECTIVE = /^workflow-lint-disable(-file)?\s+([\w/*-]+(?:\s*,\s*[\w/*-]+)*)(?:\s+--\s+(.*))?$/;
 
-export interface Disables {
-  /** Rule ids, departments or `*` disabled for the whole document. */
-  file: Set<string>;
-  byNode: Map<string, Set<string>>;
+/** One directive as written, and the nodes it covers. */
+export interface Directive {
+  /** `node:<name>` or `sticky:<name>`. */
+  location: string;
+  /** Whole document (`-disable-file`) rather than the nodes listed. */
+  file: boolean;
+  tokens: string[];
+  reason?: string;
+  /** Node names covered when `file` is false. */
+  nodes: string[];
 }
 
-const parseDirective = (line: string): { file: boolean; tokens: string[] } | undefined => {
+export interface Disables {
+  directives: Directive[];
+}
+
+const parseDirective = (line: string): { file: boolean; tokens: string[]; reason?: string } | undefined => {
   const m = DIRECTIVE.exec(line.trim());
   if (!m) return undefined;
+  const reason = m[3]?.trim();
   return {
     file: m[1] !== undefined,
     tokens: m[2]!
       .split(',')
       .map((t) => t.trim())
       .filter((t) => t.length > 0),
+    ...(reason ? { reason } : {}),
   };
 };
 
 export function collectDisables(graph: LintGraph): Disables {
-  const file = new Set<string>();
-  const byNode = new Map<string, Set<string>>();
-
-  const addToNode = (name: string, tokens: string[]): void => {
-    const set = byNode.get(name) ?? new Set<string>();
-    for (const t of tokens) set.add(t);
-    byNode.set(name, set);
-  };
-  const absorb = (directive: { file: boolean; tokens: string[] }, names: string[]): void => {
-    if (directive.file) for (const t of directive.tokens) file.add(t);
-    else for (const n of names) addToNode(n, directive.tokens);
-  };
+  const directives: Directive[] = [];
 
   for (const node of graph.nodes) {
     const notes = (node as INode & { notes?: unknown }).notes;
     if (typeof notes !== 'string') continue;
     for (const line of notes.split('\n')) {
       const d = parseDirective(line);
-      if (d) absorb(d, [node.name]);
+      if (d) directives.push({ location: `node:${node.name}`, ...d, nodes: [node.name] });
     }
   }
 
@@ -63,19 +64,31 @@ export function collectDisables(graph: LintGraph): Disables {
       .find((l) => l.length > 0 && !l.startsWith('#'));
     if (first === undefined) continue;
     const d = parseDirective(first);
-    if (d) absorb(d, graph.nodesInside(sticky).map((n) => n.name));
+    if (d) {
+      directives.push({
+        location: `sticky:${sticky.name}`,
+        ...d,
+        nodes: graph.nodesInside(sticky).map((n) => n.name),
+      });
+    }
   }
 
-  return { file, byNode };
+  return { directives };
 }
 
 /** A token matches a rule id exactly, its department, or `*`. */
-const covers = (tokens: Set<string>, ruleId: string): boolean =>
-  tokens.has('*') || tokens.has(ruleId) || tokens.has(ruleId.split('/')[0]!);
+const covers = (tokens: string[], ruleId: string): boolean =>
+  tokens.includes('*') || tokens.includes(ruleId) || tokens.includes(ruleId.split('/')[0]!);
+
+/** The first directive that names this finding, if any. */
+export function disabledBy(finding: Finding, disables: Disables): Directive | undefined {
+  return disables.directives.find((d) => {
+    if (!covers(d.tokens, finding.ruleId)) return false;
+    if (d.file) return true;
+    return finding.nodeName !== undefined && d.nodes.includes(finding.nodeName);
+  });
+}
 
 export function isDisabled(finding: Finding, disables: Disables): boolean {
-  if (covers(disables.file, finding.ruleId)) return true;
-  if (finding.nodeName === undefined) return false;
-  const tokens = disables.byNode.get(finding.nodeName);
-  return tokens !== undefined && covers(tokens, finding.ruleId);
+  return disabledBy(finding, disables) !== undefined;
 }

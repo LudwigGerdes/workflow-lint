@@ -90,6 +90,7 @@ export function buildProgram(deps: CliDeps = {}): Command {
     .option('--ignore-baseline', 'report every finding, baselined or not')
     .option('--baseline <path>', 'baseline file to use')
     .option('--no-ignore', 'lint ignored files too (config ignore + .gitignore)')
+    .option('--no-inline-config', 'do not apply workflow-lint-disable directives in notes and sticky notes')
     .option('--no-error-on-unmatched-pattern', 'skip paths that do not exist')
     .exitOverride()
     .configureOutput({ writeOut: write, writeErr })

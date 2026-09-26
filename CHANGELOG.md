@@ -13,6 +13,9 @@ All notable changes to workflow-lint are recorded here. The format follows
 - The config file is found by walking up from the working directory, so `workflow-lint lint` inside `flows/billing/` uses the repo's config. The nearest file wins.
 - `workflow-lint rules --config <path>`, and `WORKFLOW_LINT_CONFIG` for the MCP server.
 - `readConfig` and `loadConfig` in `workflow-lint/core`: the loader every surface shares, for tools that embed the linter.
+- `locked` in the config file holds a rule or department at a severity that no later layer can change: `rules`, `departments`, overrides and inline directives included. A lock in an extended file beats the extending file's own `locked`.
+- `--no-inline-config` turns off `workflow-lint-disable` directives for a run.
+- The JSON report lists every inline directive per file (`directives`: location, rules, reason, `suppressed`, `blocked`, `ignored`) and counts them in the summary. A directive that suppresses nothing is named on stderr.
 
 ### Changed
 

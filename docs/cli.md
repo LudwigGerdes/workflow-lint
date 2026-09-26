@@ -48,6 +48,7 @@ An n8n API response (`{ "data": { … } }`) is accepted wherever a workflow expo
 | `--baseline <path>` | Baseline file. Defaults to `.workflow-lint-baseline.yaml` |
 | `-l`, `--list-different` | Print only the paths of files that fail |
 | `--no-ignore` | Also lint files ignored by the config or `.gitignore` |
+| `--no-inline-config` | Do not apply `workflow-lint-disable` directives in notes and sticky notes. They are still reported |
 | `--no-error-on-unmatched-pattern` | Skip paths that do not exist instead of failing |
 | `--log-level <level>` | `silent`, `error`, `warn`, `log` (default) or `debug` |
 

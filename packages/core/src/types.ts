@@ -200,6 +200,24 @@ export interface ResolvedRule {
 export interface ResolvedConfig {
   settings: ResolvedSettings;
   rules: Map<string, ResolvedRule>;
+  /** Rule ids held by `locked`; an inline directive cannot disable them. */
+  locked?: Set<string>;
+}
+
+/** One inline `workflow-lint-disable` directive and what it did on this run. */
+export interface DirectiveReport {
+  /** `node:<name>` for a directive in a node's Notes, `sticky:<name>` for a sticky note. */
+  location: string;
+  /** The rule ids, departments or `*` it names. */
+  rules: string[];
+  /** The text after `--`, when the author gave one. */
+  reason?: string;
+  /** Findings it removed from the report. */
+  suppressed: number;
+  /** Findings it named but could not remove, because the rule is locked. */
+  blocked: number;
+  /** True under `--no-inline-config`: parsed for this report, otherwise not applied. */
+  ignored: boolean;
 }
 
 export interface LintResult {
@@ -208,6 +226,8 @@ export interface LintResult {
   parseErrors: ParseError[];
   fixedJson?: WorkflowJson;
   fixPasses?: number;
+  /** Every inline directive in the document, used or not. Absent when the file did not parse. */
+  directives?: DirectiveReport[];
 }
 
 /**
@@ -245,6 +265,13 @@ export interface UserConfig {
   ignore?: IgnoreEntry[];
   rules?: Record<string, Severity | [Severity, unknown]>;
   departments?: Record<string, Severity>;
+  /**
+   * Rules or departments held at a severity that no later layer can change:
+   * not `rules`, not `departments`, not an override, not an inline directive.
+   * A lock in an extended file also beats the extending file's own `locked`.
+   * This is what lets a shared config be cited as a control.
+   */
+  locked?: Record<string, Severity>;
   /**
    * Per-rule autofix opt-out: `{ "reliability/http-retry-config": false }`.
    * The rule keeps reporting; only its fixer is withheld. This is also the

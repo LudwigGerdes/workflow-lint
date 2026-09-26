@@ -387,3 +387,47 @@ export const presets = {
     expect(loaded.registry.has('acme/no-http')).toBe(true);
   });
 });
+
+describe('locked', () => {
+  it('holds a rule at its severity whatever later layers say', () => {
+    const c = resolveConfig(
+      {
+        extends: ['workflow-lint:recommended'],
+        locked: { 'naming/no-default-node-name': 'error' },
+        rules: { 'naming/no-default-node-name': 'off' },
+        overrides: [{ files: ['**'], departments: { naming: 'off' } }],
+      },
+      registry,
+      { path: 'a.json' },
+    );
+    expect(sev(c, 'naming/no-default-node-name')).toBe('error');
+    expect(c.rules.has('naming/other')).toBe(false);
+    expect(c.locked).toEqual(new Set(['naming/no-default-node-name']));
+  });
+
+  it('takes a department, expanding it to its rules', () => {
+    const c = resolveConfig(
+      { locked: { naming: 'warn' }, departments: { naming: 'off' } },
+      registry,
+    );
+    expect(sev(c, 'naming/no-default-node-name')).toBe('warn');
+    expect(sev(c, 'naming/other')).toBe('warn');
+    expect(c.locked).toEqual(new Set(['naming/no-default-node-name', 'naming/other']));
+  });
+
+  it('rejects an unknown rule', () => {
+    expect(() => resolveConfig({ locked: { 'nope/nope': 'error' } }, registry)).toThrow(/unknown rule/);
+  });
+
+  it('a lock in an extended file beats the extending file, and its own locked block', async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'workflow-lint-lock-'));
+    writeFileSync(join(dir, 'org.yaml'), 'locked: { naming/no-default-node-name: error }\n');
+    writeFileSync(
+      join(dir, 'workflow-lint.config.yaml'),
+      'extends: [./org.yaml]\nlocked: { naming/no-default-node-name: off, naming/other: error }\nrules: { naming/no-default-node-name: off }\n',
+    );
+    const { config } = await readConfig({ cwd: dir });
+    expect(config.locked).toEqual({ 'naming/no-default-node-name': 'error', 'naming/other': 'error' });
+    expect(sev(resolveConfig(config, registry), 'naming/no-default-node-name')).toBe('error');
+  });
+});

@@ -9,6 +9,7 @@ export function json(results: LintResult[]): string {
         path: r.path,
         findings: r.findings,
         parseErrors: r.parseErrors,
+        ...(r.directives !== undefined ? { directives: r.directives } : {}),
       })),
       summary: summarise(results),
     },

@@ -43,6 +43,11 @@ extends:
 # departments:
 #   hygiene: error
 
+# Hold a rule where nothing later can change it: not rules, departments,
+# overrides or an inline directive. Put it in a shared config to make it policy.
+# locked:
+#   hygiene/no-inline-secrets: error
+
 # Individual rules win over their department. A rule may take options.
 # rules:
 #   naming/external-node-name-format: off
