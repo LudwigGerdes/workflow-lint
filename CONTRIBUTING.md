@@ -76,6 +76,7 @@ ignore them; never regenerate `corpus-baseline.yaml` to make a gate pass.
 - No network in tests; anything that fetches takes an injected `fetch`.
 - Conventional commits (`fix(cli): …`, `feat(rules): …`, `docs: …`).
 - Fill in the pull request template. Note anything a user would see in
-  `CHANGELOG.md` under *Unreleased*.
+  `CHANGELOG.md` under an `## [Unreleased]` heading at the top (add it if
+  it is not there).
 
 By contributing you agree your work is released under the MIT license.
