@@ -27,6 +27,10 @@ Only when you ask.
 
 No. Every command is static and works offline. The MCP server can read from one n8n instance if you give it an API key. Nothing else contacts anything.
 
+### Does it need the other tools?
+
+No. workflow-lint installs and runs on its own, without [integration-mock](https://workflowtools.dev/integration-mock), [workflow-tester](https://workflowtools.dev/workflow-tester) or [workflow-render](https://workflowtools.dev/workflow-render). One output is meant for another tool: `--format canvas-overlay` writes findings as JSON that `workflow-render export --overlay` draws as badges on the workflow. Without workflow-render it is still a plain JSON file, and every other format needs nothing else.
+
 ### Which n8n versions does it support?
 
 Node descriptions for 2.38.3 ship in the package, and `node-types install <version>` fetches others. Pin `settings.n8nVersion`, or findings that depend on the version are withheld.
